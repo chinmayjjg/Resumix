@@ -39,7 +39,9 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const data = await (pdf as any)(buffer);
+    // pdf-parse may be an ES module with a default export; handle both shapes
+    const pdfParse: any = (pdf as any)?.default ?? pdf;
+    const data = await pdfParse(buffer);
     const text: string = data?.text ?? '';
 
     // simple regex parsing
