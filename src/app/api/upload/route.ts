@@ -1,76 +1,128 @@
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
-import * as pdf from 'pdf-parse';
 import Resume from '@/models/Resume';
 import { connectDB } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { Buffer } from 'buffer';
 
-type FileLike = {
+interface FileLike {
   arrayBuffer: () => Promise<ArrayBuffer>;
   size?: number;
   type?: string;
   name?: string;
-};
+}
+
+interface ParsedResumeData {
+  email: string;
+  phone: string;
+  skills: string[];
+  rawText: string;
+}
 
 function isFileLike(x: unknown): x is FileLike {
   return !!x && typeof (x as any).arrayBuffer === 'function';
 }
 
-export async function POST(req: Request) {
+async function parseWithPdfParse(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
+  // dynamic import - silence TS checking for the module resolution here
+  // @ts-ignore
+  const mod: any = await import('pdf-parse').catch((e: unknown) => {
+    throw new Error(`pdf-parse import error: ${(e as any)?.message ?? String(e)}`);
+  });
+
+  const fn: any = mod?.default ?? mod;
+  if (typeof fn !== 'function') {
+    throw new Error('pdf-parse export is not a function');
+  }
+
+  const result = await fn(buffer);
+  return { text: result?.text ?? '' };
+}
+
+async function parsePdfBuffer(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
+  // Currently only using pdf-parse to avoid module resolution/type complications.
+  return await parseWithPdfParse(buffer);
+}
+
+export async function POST(req: Request): Promise<NextResponse> {
   try {
-    const session = await getServerSession(authOptions as any);
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // cast session to any to avoid TS complaining about .user
+    const session = (await getServerSession(authOptions as any)) as any;
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     await connectDB();
 
     const formData = await req.formData();
     const fileEntry = formData.get('file');
 
-    if (!isFileLike(fileEntry))
+    if (!isFileLike(fileEntry)) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
 
     const file = fileEntry;
-    if (file.size === 0) return NextResponse.json({ error: 'Empty file' }, { status: 400 });
+    if (file.size === 0) {
+      return NextResponse.json({ error: 'Empty file' }, { status: 400 });
+    }
 
-    if (file.type && file.type !== 'application/pdf')
-      return NextResponse.json({ error: 'Only PDF allowed' }, { status: 400 });
+    if (file.type && !/pdf/i.test(file.type)) {
+      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 });
+    }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // pdf-parse may be an ES module with a default export; handle both shapes
-    const pdfParse: any = (pdf as any)?.default ?? pdf;
-    const data = await pdfParse(buffer);
+    let data: { text: string };
+    try {
+      data = await parsePdfBuffer(buffer);
+    } catch (err) {
+      console.error('PDF parsing failed (final):', err);
+      return NextResponse.json(
+        { error: 'Failed to parse PDF file. Check server logs for details.' },
+        { status: 500 }
+      );
+    }
+
     const text: string = data?.text ?? '';
 
-    // simple regex parsing
-    const email = (text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i) || [])[0] || '';
-    const phone = (text.match(/(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){1,2}\d{3,4}/) || [])[0] || '';
+    const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i);
+    const email = emailMatch ? emailMatch[0] : '';
 
-    // find a line that mentions skills and extract following items
-    const skillsLine = text.split('\n').find(line => /(^|\b)(skills?|technical skills|expertise)(\b|:)/i);
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/);
+    const phone = phoneMatch ? phoneMatch[0] : '';
 
+    const skillsLine = text.split('\n').find(line => /(skills?|technologies?|frameworks?|languages?)/i.test(line));
     const skills = (skillsLine
       ? skillsLine.split(/[:,•\-]/).slice(1).join(' ')
       : text
           .split('\n')
-          .filter(line => /skills?/i.test(line))
+          .filter(line => /(skills?|technologies?|frameworks?|languages?)/i.test(line))
           .join(' '))
       .split(/[,;•\-]/)
       .map(s => s.trim())
       .filter(Boolean);
 
-    const parsedData = { email, phone, skills, rawText: text };
+    const parsedData: ParsedResumeData = {
+      email,
+      phone,
+      skills: skills.slice(0, 10),
+      rawText: text.slice(0, 2000)
+    };
 
-    const sessUser: any = (session as any).user ?? {};
-    const userId = sessUser.id ?? sessUser.sub ?? sessUser.email ?? 'unknown';
+    const sessUser = session.user as any;
+    const userId = sessUser?.id ?? sessUser?.sub ?? sessUser?.email ?? 'unknown';
 
     await Resume.create({ userId, parsedData });
 
-    return NextResponse.json({ success: true, parsedData }, { status: 201 });
+    return NextResponse.json(
+      { success: true, parsedData, message: 'Resume processed successfully' },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Resume upload/parse error:', error);
-    return NextResponse.json({ error: 'Failed to parse resume' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process resume' }, { status: 500 });
   }
 }
