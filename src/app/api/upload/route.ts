@@ -26,29 +26,68 @@ function isFileLike(x: unknown): x is FileLike {
 }
 
 async function parseWithPdfParse(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
-  // dynamic import - silence TS checking for the module resolution here
+  // dynamic import (silence TS module resolution)
   // @ts-ignore
   const mod: any = await import('pdf-parse').catch((e: unknown) => {
     throw new Error(`pdf-parse import error: ${(e as any)?.message ?? String(e)}`);
   });
 
-  const fn: any = mod?.default ?? mod;
-  if (typeof fn !== 'function') {
-    throw new Error('pdf-parse export is not a function');
+  // try common export shapes
+  const candidates: any[] = [
+    mod,
+    mod?.default,
+    mod?.PDFParse,
+    mod?.PDFParser,
+    mod?.PDFParse?.default,
+    mod?.PDFParser?.default
+  ].filter(Boolean);
+
+  let lastErr: unknown = null;
+  for (const cand of candidates) {
+    try {
+      // if candidate is a function that accepts buffer, call it
+      if (typeof cand === 'function') {
+        // attempt direct call
+        try {
+          const res = await cand(buffer);
+          if (res && typeof res === 'object' && typeof res.text === 'string') {
+            return { text: res.text };
+          }
+        } catch (e) {
+          // maybe it's a constructor
+        }
+
+        // attempt as constructor + .parse() or promise
+        try {
+          const inst = new (cand as any)(buffer);
+          if (inst && typeof inst.parse === 'function') {
+            const parsed = await inst.parse();
+            if (parsed && typeof parsed.text === 'string') return { text: parsed.text };
+          }
+          // constructor might return a promise-like
+          if (inst && typeof inst.then === 'function') {
+            const awaited = await inst;
+            if (awaited && typeof awaited.text === 'string') return { text: awaited.text };
+          }
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+    } catch (e) {
+      lastErr = e;
+    }
   }
 
-  const result = await fn(buffer);
-  return { text: result?.text ?? '' };
+  console.error('pdf-parse keys:', Object.keys(mod || {}));
+  throw new Error(`pdf-parse shape not supported. last error: ${(lastErr as any)?.message ?? String(lastErr)}`);
 }
 
 async function parsePdfBuffer(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
-  // Currently only using pdf-parse to avoid module resolution/type complications.
   return await parseWithPdfParse(buffer);
 }
 
 export async function POST(req: Request): Promise<NextResponse> {
   try {
-    // cast session to any to avoid TS complaining about .user
     const session = (await getServerSession(authOptions as any)) as any;
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
