@@ -25,6 +25,7 @@ interface ParsedResumeData {
   email: string;
   phone: string;
   skills: string[];
+  projects: { title: string; summary: string }[]; // New field for project extraction
   rawText: string;
 }
 
@@ -114,21 +115,110 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     const text: string = data?.text ?? '';
 
-    // Regex to extract email and phone
+    // --- 1. Email Extraction ---
     const email = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i)?.[0] ?? '';
-    const phone = text.match(/(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){1,2}\d{3,4}/)?.[0] ?? '';
 
-    // Basic skill extraction logic
-    const skillsLine = text.split('\n').find(line => /(skills?|technologies?|frameworks?|languages?)/i.test(line));
-    const skills = (skillsLine
-      ? skillsLine.split(/[:,•\-]/).slice(1).join(' ')
-      : text.split('\n').filter(line => /(skills?|technologies?|frameworks?|languages?)/i.test(line)).join(' '))
-      .split(/[,;•\-]/).map(s => s.trim()).filter(Boolean).slice(0, 10);
+    // --- 2. Phone Extraction (Confirmed Working) ---
+    // This regex looks for common global phone formats: 
+    // optional country code (+XX), optional parentheses, minimum 7 digits
+    const phoneMatch = text.match(/(\+?\s*\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}/);
+    // Find the longest match and clean it up, prioritizing the explicit phone number
+    const phone = phoneMatch ? phoneMatch.find(p => (p.replace(/[\s.-]/g, '').length >= 7 && p.includes('+'))) ?? phoneMatch[0] : '';
+    const cleanedPhone = phone.replace(/[^\d+]/g, '').trim();
 
+
+    // --- 3. Skills Extraction (Major Revision for better isolation and filtering) ---
+    // 1. Attempt to isolate the skills block using major headers as delimiters.
+    // Finds text between a Skills header and the next major section (like Education or Projects).
+    const skillBlockMatch = text.match(/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*([^]+?)(?=(EDUCATION|PROJECTS|EXPERIENCE|OBJECTIVE))/i);
+    let skillSectionText = '';
+
+    if (skillBlockMatch && skillBlockMatch[2]) {
+        // Use the content captured between the header and the next section.
+        skillSectionText = skillBlockMatch[2].trim();
+    } else {
+        // Fallback to the previous line-by-line approach if the regex fails to find clear delimiters.
+        const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
+        let foundSkillsHeader = false;
+        
+        for (const line of lines) {
+             if (/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)/i.test(line)) {
+                foundSkillsHeader = true;
+                // Capture content after the header keyword on the same line
+                skillSectionText += line.replace(/(.*?(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*)/i, '').trim();
+                continue;
+            }
+
+            if (foundSkillsHeader && skillSectionText.length < 500) { 
+                if (!/(OBJECTIVE|EDUCATION|EXPERIENCE|PROJECTS|WORK)/i.test(line)) {
+                    skillSectionText += ' ' + line;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 2. Pre-clean the extracted block to normalize formatting and replace categories with commas
+    const cleanedBlock = skillSectionText
+        .replace(/\s+/g, ' ') // Collapse multiple spaces
+        .replace(/:\s*/g, ', ') // Replace colons with commas
+        .replace(/(Frontend|Backend|APIs|Tools|Core)\s*/ig, ', '); // Replace internal category headers with delimiters
+
+    // 3. Split by common delimiters
+    const rawSkillsList = cleanedBlock.split(/[,;•|\/]/).map(s => s.trim()).filter(Boolean);
+    
+    // 4. Aggressively filter out junk (URLs, locations, short words, filler)
+    const skills = rawSkillsList
+        .filter(s => {
+            const lowerS = s.toLowerCase();
+            // Exclusion criteria:
+            return s.length > 2 && 
+                   !/(\s|and|or|etc|etc\.|a|the|with|of|in|to|is|for|from)/i.test(s) && // Exclude short words and common conjunctions
+                   !/(http|www|\.com|\.org|\.net|\@|github|linkedin|student|mca|odisha|india|pradhan|chinmay|developer)/i.test(lowerS); // Exclude URLs, location, and name components
+        })
+        .slice(0, 15); // Keep up to 15 best candidates
+        
+    // --- 4. Project Extraction ---
+    let projects: { title: string; summary: string }[] = [];
+
+    // Find the block of text between the PROJECTS header and the next major header (e.g., ACHIEVEMENTS)
+    const projectsBlockMatch = text.match(/(TECHNICAL\s*PROJECTS?|PROJECTS?|PORTFOLIO)\s*([^]+?)(?=(KEY\s*ACHIEVEMENTS|EDUCATION|EXPERIENCE|\n[A-Z]{3,}[A-Z\s]+))/i);
+    
+    if (projectsBlockMatch && projectsBlockMatch[2]) {
+        const projectText = projectsBlockMatch[2].trim();
+        
+        // Regex to find each project: Captures (Title-Like Pattern) followed by (everything until next Title-Like Pattern or end of block)
+        // This relies on the pattern: [CapitalizedWord]–[Title]
+        const projectRegex = /([A-Z][a-zA-Z]+[–-][^—\n]+?)([^A-Z][^]*?)(?=[A-Z][a-zA-Z]+[–-][^—\n]+?|KEY\s*ACHIEVEMENTS|EDUCATION|EXPERIENCE|$)/g;
+        
+        let match;
+        while ((match = projectRegex.exec(projectText)) !== null) {
+            const rawTitle = match[1].trim();
+            let rawSummary = match[2].trim();
+
+            // Clean the summary: remove URLs, excessive bullet points, collapse spaces
+            rawSummary = rawSummary
+                .replace(/(GitHub:|Demo:).*?(\s•|\n|—)/ig, ' ') // Remove link labels/URIs and separators
+                .replace(/[\•\u2022]/g, ' ') // Remove bullet points
+                .replace(/\s+/g, ' ') // Collapse multiple spaces
+                .trim();
+                
+            // Filter out junk/empty summaries
+            if (rawSummary.length > 10 && rawSummary.length < 250) {
+                 projects.push({ 
+                    title: rawTitle.replace(/–|-/g, ' - '), // Normalize dash
+                    summary: rawSummary.slice(0, 150) + (rawSummary.length > 150 ? '...' : '') 
+                });
+            }
+        }
+    }
+        
     const parsedData: ParsedResumeData = {
       email,
-      phone,
+      phone: cleanedPhone, // Use the cleaned phone number
       skills,
+      projects, // Add the new projects array
       rawText: text.slice(0, 2000)
     };
 
