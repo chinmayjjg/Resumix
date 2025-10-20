@@ -179,7 +179,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         })
         .slice(0, 15); // Keep up to 15 best candidates
         
-    // --- 4. Project Extraction ---
+    // --- 4. Project Extraction (REFINED LOGIC) ---
     let projects: { title: string; summary: string }[] = [];
 
     // Find the block of text between the PROJECTS header and the next major header (e.g., ACHIEVEMENTS)
@@ -188,28 +188,52 @@ export async function POST(req: Request): Promise<NextResponse> {
     if (projectsBlockMatch && projectsBlockMatch[2]) {
         const projectText = projectsBlockMatch[2].trim();
         
-        // Regex to find each project: Captures (Title-Like Pattern) followed by (everything until next Title-Like Pattern or end of block)
-        // This relies on the pattern: [CapitalizedWord]–[Title]
-        const projectRegex = /([A-Z][a-zA-Z]+[–-][^—\n]+?)([^A-Z][^]*?)(?=[A-Z][a-zA-Z]+[–-][^—\n]+?|KEY\s*ACHIEVEMENTS|EDUCATION|EXPERIENCE|$)/g;
-        
-        let match;
-        while ((match = projectRegex.exec(projectText)) !== null) {
-            const rawTitle = match[1].trim();
-            let rawSummary = match[2].trim();
+        // Define common descriptive verbs that should NOT start a project title, followed by a potential dash.
+        const EXCLUDED_START_WORDS = 
+            '(?:Developed|Built|Implemented|Added|Features|Created|BuiltasecurebackendwithNode\\.js|Implementedreal)';
 
-            // Clean the summary: remove URLs, excessive bullet points, collapse spaces
-            rawSummary = rawSummary
-                .replace(/(GitHub:|Demo:).*?(\s•|\n|—)/ig, ' ') // Remove link labels/URIs and separators
-                .replace(/[\•\u2022]/g, ' ') // Remove bullet points
-                .replace(/\s+/g, ' ') // Collapse multiple spaces
-                .trim();
+        // Pattern for splitting: Look for a capitalized word followed by a dash, 
+        // but exclude the common descriptive verbs using a negative lookahead (?!...)
+        const PROJECT_TITLE_SPLIT_PATTERN = 
+            new RegExp(`(?!${EXCLUDED_START_WORDS})([A-Z][a-zA-Z]+[–-][^—\n]+?)`, 'g');
+        
+        // Split the text, capturing the delimiters (titles)
+        const parts = projectText.split(PROJECT_TITLE_SPLIT_PATTERN).filter(p => p.trim() !== '');
+
+        // If index 0 is content before the first title, titles start at index 1.
+        // We only care about pairs starting from the first title.
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i].trim();
+            // Check if this part looks like a potential Title
+            if (part.match(/[A-Z][a-zA-Z]+[–-][^—\n]+?/)) {
+                const rawTitle = part;
+                const rawContent = (parts[i+1] || '').trim(); // Content is the next item
+
+                // Since we are iterating and consuming the next item (rawContent), increment i again
+                i++; 
                 
-            // Filter out junk/empty summaries
-            if (rawSummary.length > 10 && rawSummary.length < 250) {
-                 projects.push({ 
-                    title: rawTitle.replace(/–|-/g, ' - '), // Normalize dash
-                    summary: rawSummary.slice(0, 150) + (rawSummary.length > 150 ? '...' : '') 
-                });
+                // Remove link labels and their content from the raw content
+                let summaryText = rawContent
+                    // Remove GitHub and Demo URLs and labels completely
+                    .replace(/GitHub:.*?(\s—|\n|$)/ig, ' ') 
+                    .replace(/Demo:.*?(\s—|\n|$)/ig, ' ')
+                    .replace(/URL:.*?(\s—|\n|$)/ig, ' ')
+                    .trim();
+                    
+                // Clean up the bullet points and excessive spacing in the summary
+                summaryText = summaryText
+                    .replace(/[\•\u2022]/g, ' ') // Replace all bullet characters with spaces
+                    .replace(/\s+/g, ' ') // Collapse multiple spaces
+                    .trim();
+
+
+                // Final check and push (require a minimum summary length to filter junk)
+                if (summaryText.length > 20) { 
+                    projects.push({ 
+                        title: rawTitle.replace(/–|-/g, ' - ').trim(), // Normalize dash in title
+                        summary: summaryText.slice(0, 150) + (summaryText.length > 150 ? '...' : '') 
+                    });
+                }
             }
         }
     }
