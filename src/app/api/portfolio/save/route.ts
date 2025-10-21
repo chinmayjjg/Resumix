@@ -8,8 +8,13 @@ import { transformResumeData } from '@/lib/transformResumeData';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id)
+
+    
+    const userId = (session?.user as { id?: string })?.id;
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const rawData = await req.json();
     const structured = transformResumeData(rawData);
@@ -17,8 +22,8 @@ export async function POST(req: Request) {
     await connectDB();
 
     const updatedPortfolio = await Portfolio.findOneAndUpdate(
-      { userId: session.user.id },
-      { userId: session.user.id, ...structured },
+      { userId },
+      { userId, ...structured },
       { upsert: true, new: true }
     );
 

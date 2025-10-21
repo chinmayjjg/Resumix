@@ -21,7 +21,9 @@ export interface IProject {
   link?: string;
 }
 
+
 export interface IPortfolio extends Document {
+  id?:string;
   userId: string;
   name: string;
   email: string;
