@@ -11,44 +11,70 @@ interface Pdf2JsonData {
 }
 
 /**
- * Cleans up raw text extracted from a PDF to fix common issues like merged words 
- * (e.g., 'KnowledgeManagementSystem' becomes 'Knowledge Management System').
+ * Fixes common PDF parsing issues like merged words (e.g., 'KnowledgeManagementSystem' -> 'Knowledge Management System') 
+ * and inconsistent separators.
  */
 function cleanRawText(text: string): string {
   if (!text) return '';
 
   let cleaned = text;
 
-  // 1. Re-introduce spaces where camelCase words were merged 
-  // e.g., 'KnowledgeManagementSystem' -> 'Knowledge Management System'
+  // 1. Re-introduce spaces where camelCase words were merged.
   cleaned = cleaned.replace(/([a-z])([A-Z])/g, '$1 $2');
   
-  // 2. Fix spaces around punctuation (e.g., '.Hello' -> '. Hello')
-  cleaned = cleaned.replace(/([.,:;])(\S)/g, '$1 $2');
-
-  // 3. Fix the specific issue seen with projects where titles merge with summaries via a dash
-  // e.g., 'SecondBrain - K nowledgeManagementSystem' -> 'SecondBrain KnowledgeManagementSystem' 
-  // We'll replace the dash with a space, then the first step will clean the rest.
+  // 2. Fix the fragmented titles by replacing the dash/separator with a single space.
+  // This addresses issues like "SecondBrain - K nowledgeManagementSystem"
   cleaned = cleaned.replace(/\s*–\s*|\s*-\s*/g, ' '); 
-  
-  // 4. Normalize multiple spaces, newlines, and tabs into a single space
+
+  // 3. Normalize multiple spaces, newlines, and tabs into a single space
   cleaned = cleaned.replace(/\s+/g, ' ');
   
+  // 4. Ensure there is a space *after* punctuation, fixing "Boinda,Angul"
+  cleaned = cleaned.replace(/([.,:;])(\S)/g, '$1 $2');
+
   return cleaned.trim();
 }
 
 /**
- * Simple, temporary function to mock the project extraction.
- * In a real scenario, this would use regex or NLP on the cleaned text.
+ * Extracts project titles and summaries from the cleaned text, 
+ * using specific resume section markers and structural keywords.
  */
 function extractProjects(text: string): { name: string; summary: string }[] {
-    // This is a placeholder. You need to implement proper regex or NLP 
-    // to find the projects section and parse the entries.
-    // For now, we return a simple mock structure.
-    return [
-        { name: 'Second Brain - Knowledge Management System', summary: 'Developed a full-stack personal knowledge app with React, Node.js, and MongoDB.' },
-        { name: 'SuperOps - AI-Powered Ticket Management System', summary: 'Built a modern full-stack ticketing system with React, Express, and MongoDB.' },
-    ];
+    const projects = [];
+    
+    // Find the section between TECHNICAL PROJECTS and KEY ACHIEVEMENTS
+    const sectionMatch = text.match(/TECHNICAL PROJECTS(.*?)(?=KEY ACHIEVEMENTS)/);
+    if (!sectionMatch) return [];
+
+    const sectionText = sectionMatch[1].trim();
+
+    // Regex Pattern:
+    // Captures a Project Name (capitalized words) followed by a link/URL keyword, 
+    // and then the entire description block until the next project name or section end.
+    // This is robust against the internal bullet points and multi-line descriptions.
+    const projectRegex = /([A-Z][\w\s]+?)\s*(GitHub|Demo|http|Built|Implemented)(.*?)(?=\s*[A-Z][\w\s]+?|\s*$)/g;
+    
+    let match;
+    while ((match = projectRegex.exec(sectionText)) !== null) {
+        let title = match[1].trim();
+        let rawSummary = match[3].trim();
+        
+        // Clean up the title by removing trailing separators/links.
+        title = title.replace(/\s+(GitHub|Demo|http|Built|Implemented)$/i, '').trim();
+
+        // Extract the main description text, prioritizing text after the first bullet point if available.
+        let summaryMatch = rawSummary.match(/•\s*(.*?)(?=\s*•\s*[A-Z]|$)/);
+        let summary = summaryMatch ? summaryMatch[1].trim() : rawSummary.split(/[.?!]\s*[A-Z]/)[0].trim();
+        
+        // Final cleanup on the summary
+        summary = summary.replace(/\s*•\s*/g, '. ').replace(/\s+/g, ' ').trim();
+
+        if (title && summary) {
+            projects.push({ name: title, summary: summary });
+        }
+    }
+
+    return projects;
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -59,35 +85,38 @@ export function transformResumeData(rawData: Pdf2JsonData) {
     p.Texts.map((t) => decodeURIComponent(t.text))
   );
 
-  // 2. Join with a large space to ensure blocks don't merge (often better than ' ')
-  // Using \n\n as a separator is often more robust than a single space for PDF text blocks.
+  // 2. Join with double newline to preserve block separation
   const joinedRaw = textBlocks.join('\n\n'); 
   
-  // 3. APPLY THE CLEANING FIX to the raw text
+  // 3. APPLY THE CLEANING FIX
   const cleanedText = cleanRawText(joinedRaw);
 
-  // 4. Crude extraction using the CLEANED text
-  const nameMatch = cleanedText.match(/([A-Z][a-z]+)\s+([A-Z][a-z]+)/);
+  // 4. Core Contact Extraction (using the CLEANED text)
+  const nameMatch = cleanedText.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)/);
   const name = nameMatch ? `${nameMatch[1]} ${nameMatch[2]}` : textBlocks[0] || 'Unknown User';
   
   const email = cleanedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/)?.[0] || '';
-  const phone = cleanedText.match(/(\+?\d{10,13})/)?.[0] || '';
+  
+  // Robust phone regex
+  const phone = cleanedText.match(/(\+?\d{1,3}[\s-]?)?(\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}/)?.[0] || '';
 
-  // The final structure now includes the raw text for debugging and better project extraction
-  const finalData = {
+  // 5. Skills Extraction (based on known terms in your resume)
+  const potentialSkills = ['TypeScript', 'HTML5', 'CSS3', 'Node.js', 'Express', 'MongoDB', 'REST', 'Git', 'VSCode', 'Vercel', 'System Design', 'Cloud Deployment'];
+  const extractedSkills = potentialSkills.filter(skill => new RegExp(skill.replace(/\s/g, '\\s*'), 'i').test(cleanedText));
+
+  // 6. Projects Extraction
+  const extractedProjects = extractProjects(cleanedText);
+
+  return {
     name,
     email,
     phone,
     headline: '',
     summary: '',
-    // This will require more complex logic on your end, but here's how you'd call it
-    // passing the now-cleaned text:
-    skills: ['TypeScript', 'Node.js', 'Express', 'MongoDB'], // Mocked for now
+    skills: extractedSkills,
     experience: [],
     education: [],
-    projects: extractProjects(cleanedText), // Using the placeholder
-    rawText: cleanedText, // Provide the cleaned text for debugging
+    projects: extractedProjects,
+    rawText: cleanedText, // Returns the cleaned text for verification
   };
-
-  return finalData;
 }
