@@ -15,6 +15,10 @@ export interface IEducation {
   endYear: string;
 }
 
+export interface Itheme {
+  theme:string;
+}
+
 export interface IProject {
   name: string;
   description: string;
@@ -31,6 +35,7 @@ export interface IPortfolio extends Document {
   headline?: string;
   summary?: string;
   skills: string[];
+  theme:'light'| 'dark';
   experience: IExperience[];
   education: IEducation[];
   projects: IProject[];
@@ -64,6 +69,11 @@ const PortfolioSchema = new Schema<IPortfolio>(
         endYear: String,
       },
     ],
+    theme: { 
+    type: String, 
+    enum: ['light', 'dark'], 
+    default: 'light'
+   } ,
     projects: [
       {
         name: String,
@@ -72,6 +82,7 @@ const PortfolioSchema = new Schema<IPortfolio>(
       },
     ],
   },
+  
   { timestamps: true }
 );
 
