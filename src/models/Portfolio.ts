@@ -35,7 +35,7 @@ export interface IPortfolio extends Document {
   headline?: string;
   summary?: string;
   skills: string[];
-  theme:'light'| 'dark';
+  theme?:'light'| 'dark';
   experience: IExperience[];
   education: IEducation[];
   projects: IProject[];
