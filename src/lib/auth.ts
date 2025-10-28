@@ -4,6 +4,15 @@ import { connectDB } from './db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
+// Add type for the user object
+interface UserDoc {
+  _id: string;
+  name?: string;
+  email: string;
+  password: string;
+  image?: string;
+}
+
 export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,12 +22,16 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Email and password required');
+        }
+
         await connectDB();
-        const user = await User.findOne({ email: credentials?.email });
+        const user = await User.findOne({ email: credentials.email }) as UserDoc;
 
         if (!user) throw new Error('User not found');
 
-        const isValid = await bcrypt.compare(credentials!.password, user.password);
+        const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) throw new Error('Invalid password');
 
         return {
@@ -42,9 +55,10 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-
     async session({ session, token }) {
-      session.user.id = token.id as string;
+      if (token && session.user) {
+        session.user.id = token.id as string;
+      }
       return session;
     },
   },
