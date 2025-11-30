@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Portfolio from "@/models/Portfolio";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ui/ui/ThemeToggle";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);

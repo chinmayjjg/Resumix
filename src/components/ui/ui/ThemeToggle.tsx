@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-export default function ThemeToggle({ currentTheme }: { currentTheme: string }) {
+export default function ThemeToggle({ currentTheme, userId }: { currentTheme: string; userId: string }) {
   const [theme, setTheme] = useState(currentTheme);
 
   async function handleToggle() {
@@ -11,12 +11,12 @@ export default function ThemeToggle({ currentTheme }: { currentTheme: string }) 
     await fetch('/api/portfolio/theme', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme: newTheme }),
+      body: JSON.stringify({ theme: newTheme, userId }),
     });
   }
 
   return (
-    <button 
+    <button
       onClick={handleToggle}
       className="p-2 border rounded"
     >
