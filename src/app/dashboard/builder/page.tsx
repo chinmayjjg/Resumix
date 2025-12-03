@@ -35,6 +35,7 @@ interface PortfolioData {
     education: Education[];
     projects: Project[];
     theme: 'light' | 'dark';
+    userId?: string;
 }
 
 const initialData: PortfolioData = {
@@ -134,13 +135,23 @@ export default function BuilderPage() {
                 <div className="p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold text-gray-900">Portfolio Builder</h1>
-                        <div className="space-x-4">
+                        <div className="space-x-4 flex items-center">
                             <button
                                 onClick={() => router.push('/dashboard')}
                                 className="text-gray-600 hover:text-gray-900"
                             >
                                 Cancel
                             </button>
+                            {data.userId && (
+                                <a
+                                    href={`/portfolio/${data.userId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 font-medium"
+                                >
+                                    View Live
+                                </a>
+                            )}
                             <button
                                 onClick={savePortfolio}
                                 disabled={saving}
