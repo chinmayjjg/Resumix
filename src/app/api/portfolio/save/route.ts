@@ -3,28 +3,33 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { connectDB } from '@/lib/db';
 import Portfolio from '@/models/Portfolio';
-import { transformResumeData } from '@/lib/transformResumeData';
+
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-
-    
     const userId = (session?.user as { id?: string })?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const rawData = await req.json();
-    const structured = transformResumeData(rawData);
+    const data = await req.json();
 
     await connectDB();
 
+    // Prevent overwriting userId or other immutable fields if they are passed in body
+    const { _id, userId: _, createdAt, updatedAt, ...updateData } = data;
+
     const updatedPortfolio = await Portfolio.findOneAndUpdate(
       { userId },
-      { userId, ...structured },
-      { upsert: true, new: true }
+      {
+        $set: {
+          ...updateData,
+          userId // Ensure userId is always set/preserved
+        }
+      },
+      { upsert: true, new: true, runValidators: true }
     );
 
     return NextResponse.json({
@@ -34,7 +39,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Error saving portfolio:', err);
     return NextResponse.json(
-      { error: 'Failed to save portfolio' },
+      { error: 'Failed to save portfolio', details: String(err) },
       { status: 500 }
     );
   }
