@@ -7,10 +7,10 @@ import ProjectsSection from './ProjectsSection';
 export default function PortfolioLayout({ portfolio }: { portfolio: any }) {
   return (
     <div className="space-y-10">
-      {portfolio.about && <AboutSection about={portfolio.about} />}
+      {portfolio.summary && <AboutSection about={portfolio.summary} />}
 
-      {portfolio.experiences?.length > 0 && (
-        <ExperienceSection experiences={portfolio.experiences} />
+      {portfolio.experience?.length > 0 && (
+        <ExperienceSection experiences={portfolio.experience} />
       )}
 
       {portfolio.education?.length > 0 && (

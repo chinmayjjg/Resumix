@@ -10,8 +10,9 @@ async function getPortfolio(username: string) {
   return res.json();
 }
 
-export default async function PortfolioPage({ params }: { params: { username: string } }) {
-  const portfolio = await getPortfolio(params.username);
+export default async function PortfolioPage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = await params;
+  const portfolio = await getPortfolio(username);
 
   if (!portfolio) return notFound();
 
