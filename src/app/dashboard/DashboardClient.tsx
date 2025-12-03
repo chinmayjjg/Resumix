@@ -14,6 +14,12 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                     <h1 className="text-3xl font-bold">Dashboard</h1>
                     <div className="flex items-center gap-4">
                         <Link
+                            href="/dashboard/profile"
+                            className="text-gray-600 hover:text-gray-900 font-medium"
+                        >
+                            Profile
+                        </Link>
+                        <Link
                             href="/dashboard/builder"
                             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                         >

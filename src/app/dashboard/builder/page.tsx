@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Experience {
     company: string;
@@ -66,7 +67,6 @@ export default function BuilderPage() {
             const res = await fetch('/api/portfolio/me');
             const json = await res.json();
             if (json.portfolio) {
-                // Merge with initialData to ensure all arrays exist
                 setData({ ...initialData, ...json.portfolio });
             }
         } catch (err) {
@@ -136,6 +136,12 @@ export default function BuilderPage() {
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold text-gray-900">Portfolio Builder</h1>
                         <div className="space-x-4 flex items-center">
+                            <Link
+                                href="/dashboard/profile"
+                                className="text-gray-600 hover:text-gray-900 font-medium"
+                            >
+                                Profile
+                            </Link>
                             <button
                                 onClick={() => router.push('/dashboard')}
                                 className="text-gray-600 hover:text-gray-900"
