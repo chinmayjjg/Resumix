@@ -27,6 +27,12 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
         try {
             const res = await fetch('/api/user/profile');
+
+            if (res.status === 401) {
+                router.push('/auth/login');
+                return;
+            }
+
             const data = await res.json();
 
             if (data.success) {
@@ -102,8 +108,8 @@ export default function ProfilePage() {
                         {message && (
                             <div
                                 className={`mb-6 p-4 rounded-lg ${message.type === 'success'
-                                        ? 'bg-green-50 text-green-800 border border-green-200'
-                                        : 'bg-red-50 text-red-800 border border-red-200'
+                                    ? 'bg-green-50 text-green-800 border border-green-200'
+                                    : 'bg-red-50 text-red-800 border border-red-200'
                                     }`}
                             >
                                 {message.text}

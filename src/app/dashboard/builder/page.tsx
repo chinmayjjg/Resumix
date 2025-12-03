@@ -65,6 +65,12 @@ export default function BuilderPage() {
     const fetchPortfolio = async () => {
         try {
             const res = await fetch('/api/portfolio/me');
+
+            if (res.status === 401) {
+                router.push('/auth/login');
+                return;
+            }
+
             const json = await res.json();
             if (json.portfolio) {
                 setData({ ...initialData, ...json.portfolio });

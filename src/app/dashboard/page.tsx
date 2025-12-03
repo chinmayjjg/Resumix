@@ -3,12 +3,13 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Portfolio from "@/models/Portfolio";
 import DashboardClient from "./DashboardClient";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return <div>You are not logged in</div>;
+    redirect('/auth/login');
   }
 
   await connectDB();
