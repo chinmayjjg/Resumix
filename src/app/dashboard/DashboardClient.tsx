@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ui/ThemeToggle";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function DashboardClient({ portfolio, session }: { portfolio: any, session: any }) {
     const [theme, setTheme] = useState(portfolio?.theme || "light");
 

@@ -13,6 +13,7 @@ export default async function DashboardPage() {
   }
 
   await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const portfolio = await Portfolio.findOne({ userId: session.user.id }).lean() as any;
 
   return <DashboardClient portfolio={portfolio} session={session} />;

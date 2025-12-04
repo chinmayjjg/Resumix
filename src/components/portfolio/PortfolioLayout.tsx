@@ -4,6 +4,7 @@ import EducationSection from './EducationSection';
 import SkillsSection from './SkillsSection';
 import ProjectsSection from './ProjectsSection';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function PortfolioLayout({ portfolio }: { portfolio: any }) {
   return (
     <div className={`${portfolio.theme || 'light'} min-h-screen bg-background text-foreground`}>

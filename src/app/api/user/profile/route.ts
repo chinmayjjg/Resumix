@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
 
 // GET user profile
 export async function GET() {

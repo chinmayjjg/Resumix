@@ -60,6 +60,7 @@ export default function BuilderPage() {
 
     useEffect(() => {
         fetchPortfolio();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchPortfolio = async () => {
@@ -82,17 +83,20 @@ export default function BuilderPage() {
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (field: keyof PortfolioData, value: any) => {
         setData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleArrayChange = (field: 'experience' | 'education' | 'projects', index: number, subField: string, value: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newArray = [...data[field]] as any[];
         newArray[index][subField] = value;
         setData(prev => ({ ...prev, [field]: newArray }));
     };
 
     const addItem = (field: 'experience' | 'education' | 'projects') => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newArray = [...data[field]] as any[];
         if (field === 'experience') newArray.push({ company: '', position: '', startDate: '', endDate: '', description: '' });
         else if (field === 'education') newArray.push({ institution: '', degree: '', startYear: '', endYear: '' });

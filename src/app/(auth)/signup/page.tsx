@@ -25,8 +25,12 @@ export default function SignupPage() {
 
       if (!res.ok) throw new Error(data.error || "Signup failed");
       router.push("/login");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

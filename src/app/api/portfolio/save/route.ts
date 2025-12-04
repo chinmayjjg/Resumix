@@ -19,7 +19,8 @@ export async function POST(req: Request) {
     await connectDB();
 
     // Prevent overwriting userId or other immutable fields if they are passed in body
-    const { _id, userId: _, createdAt, updatedAt, ...updateData } = data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { userId: _userId, createdAt: _createdAt, updatedAt: _updatedAt, ...updateData } = data;
 
     const updatedPortfolio = await Portfolio.findOneAndUpdate(
       { userId },

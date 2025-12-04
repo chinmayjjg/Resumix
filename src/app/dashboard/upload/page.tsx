@@ -28,6 +28,7 @@ export default function UploadPage() {
         email: parsedData.email,
         phone: parsedData.phone,
         skills: parsedData.skills,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         projects: parsedData.projects?.map((p: any) => ({
           name: p.title,
           description: p.summary,
@@ -50,9 +51,13 @@ export default function UploadPage() {
       // 4. Redirect to Builder
       router.push('/dashboard/builder');
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      alert(error.message);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
