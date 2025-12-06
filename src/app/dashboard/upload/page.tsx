@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import TemplateSelector from '@/components/portfolio/TemplateSelector';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [template, setTemplate] = useState('modern');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -28,6 +30,7 @@ export default function UploadPage() {
         email: parsedData.email,
         phone: parsedData.phone,
         skills: parsedData.skills,
+        template: template,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         projects: parsedData.projects?.map((p: any) => ({
           name: p.title,
@@ -75,6 +78,9 @@ export default function UploadPage() {
             className="w-full"
           />
         </div>
+
+        <TemplateSelector value={template} onChange={setTemplate} />
+
         <button
           type="submit"
           disabled={loading}
