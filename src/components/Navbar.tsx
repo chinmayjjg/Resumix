@@ -5,9 +5,17 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 
+import { usePathname } from "next/navigation";
+
 export default function Navbar() {
     const { data: session } = useSession();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
+
+    // Hide navbar on public portfolio pages
+    if (pathname?.startsWith('/portfolio/') || pathname?.startsWith('/u/')) {
+        return null;
+    }
 
     return (
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
