@@ -39,7 +39,7 @@ Want to run this locally? Here is how you can get up and running 5 minutes or le
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/yourusername/resumix.git
+git clone https://github.com/chinmayjjg/resumix.git
 cd resumix
 npm install
 ```
