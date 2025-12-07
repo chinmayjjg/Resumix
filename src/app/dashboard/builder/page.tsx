@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ThemePreviewGrid from '@/components/portfolio/ThemePreviewGrid';
+import { IPortfolio } from '@/models/Portfolio';
 
 interface Experience {
     company: string;
@@ -37,6 +39,7 @@ interface PortfolioData {
     projects: Project[];
     theme: 'light' | 'dark';
     userId?: string;
+    template?: string;
 }
 
 const initialData: PortfolioData = {
@@ -56,6 +59,7 @@ export default function BuilderPage() {
     const [data, setData] = useState<PortfolioData>(initialData);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showThemeModal, setShowThemeModal] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -137,15 +141,60 @@ export default function BuilderPage() {
         }
     };
 
+    const handleThemeSwitch = async (newTemplate: string) => {
+        // Optimistic update
+        const updatedData = { ...data, template: newTemplate };
+        setData(updatedData); // Update local state immediately to reflect if needed
+        setShowThemeModal(false);
+
+        // Save to background
+        try {
+            await fetch('/api/portfolio/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData),
+            });
+        } catch (err) {
+            console.error('Failed to save theme change', err);
+            alert('Failed to save theme change');
+        }
+    };
+
     if (loading) return <div className="p-8">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-gray-50 p-8 relative">
+            {/* Theme Selection Modal */}
+            {showThemeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-6 relative">
+                        <button
+                            onClick={() => setShowThemeModal(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-black z-50 bg-white rounded-full p-2"
+                        >
+                            ✕ Close
+                        </button>
+                        <h2 className="text-2xl font-bold mb-6 text-center">Switch Theme</h2>
+                        <ThemePreviewGrid
+                            portfolioData={data as unknown as Partial<IPortfolio>}
+                            onSelect={handleThemeSwitch}
+                            currentTemplate={data.template}
+                        />
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold text-gray-900">Portfolio Builder</h1>
                         <div className="space-x-4 flex items-center">
+                            <button
+                                onClick={() => setShowThemeModal(true)}
+                                className="text-purple-600 hover:text-purple-800 font-medium px-4 py-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                            >
+                                🎨 Switch Theme
+                            </button>
                             <Link
                                 href="/dashboard/profile"
                                 className="text-gray-600 hover:text-gray-900 font-medium"

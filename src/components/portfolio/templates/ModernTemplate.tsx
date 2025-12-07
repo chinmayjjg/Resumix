@@ -38,7 +38,7 @@ export default function ModernTemplate({ portfolio }: { portfolio: any }) {
                         <div className="flex flex-wrap justify-center gap-6 pt-8">
                             {email && (
                                 <a href={`mailto:${email}`} className="px-8 py-4 rounded-full bg-blue-600 text-white text-lg font-bold hover:bg-blue-700 hover:scale-105 transition-all shadow-lg shadow-blue-500/30">
-                                    Let's Connect
+                                    Let&apos;s Connect
                                 </a>
                             )}
                             {phone && (

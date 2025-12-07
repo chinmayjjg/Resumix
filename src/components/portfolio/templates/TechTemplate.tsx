@@ -47,7 +47,7 @@ export default function TechTemplate({ portfolio }: { portfolio: any }) {
 
                             {headline && (
                                 <div className="text-[#00ff41] text-xl md:text-2xl opacity-80 pl-4 border-l-2 border-[#003b00] py-2">
-                                    <span className="opacity-50">// </span>{headline}
+                                    <span className="opacity-50">{'// '}</span>{headline}
                                 </div>
                             )}
 
