@@ -11,76 +11,84 @@ export default function MinimalTemplate({ portfolio }: { portfolio: any }) {
     const isDark = theme === 'dark';
 
     return (
-        <div className={`min-h-screen font-sans ${isDark ? 'bg-neutral-900 text-neutral-200' : 'bg-white text-neutral-900'}`}>
-            <div className="max-w-3xl mx-auto px-6 md:px-12 py-16 md:py-24">
-                {/* Header */}
-                <header className="mb-20 space-y-6">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                            {name}
-                        </h1>
-                        {headline && (
-                            <p className={`text-xl ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                                {headline}
-                            </p>
-                        )}
-                    </div>
+        <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-50 text-neutral-800'} font-serif relative`}>
+            {/* Subtle Texture Overlay */}
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
 
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                        {email && (
-                            <a href={`mailto:${email}`} className="hover:underline underline-offset-4 decoration-2">
-                                {email}
-                            </a>
-                        )}
-                        {phone && (
-                            <a href={`tel:${phone}`} className="hover:underline underline-offset-4 decoration-2">
-                                {phone}
-                            </a>
-                        )}
-                    </div>
+            <div className="max-w-3xl mx-auto px-8 py-24 md:py-40 relative z-10">
+
+                {/* Minimal Header */}
+                <header className="mb-32 space-y-6 text-center">
+                    <p className="text-xs font-sans font-bold tracking-[0.3em] uppercase opacity-40">Portfolio</p>
+                    <h1 className="text-5xl md:text-7xl font-light tracking-wide text-current">
+                        {name}
+                    </h1>
+                    {headline && (
+                        <div className="w-12 h-px bg-current mx-auto opacity-30 my-8"></div>
+                    )}
+                    {headline && (
+                        <p className="text-lg md:text-xl italic opacity-60 max-w-md mx-auto leading-loose">
+                            {headline}
+                        </p>
+                    )}
                 </header>
 
-                <main className="space-y-24">
+                <main className="space-y-32">
                     {portfolio.summary && (
-                        <section>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-8 opacity-60">About</h2>
-                            <div className="prose prose-lg dark:prose-invert">
+                        <section className="text-center">
+                            <div className="prose prose-lg mx-auto prose-neutral dark:prose-invert font-light leading-loose">
                                 <AboutSection about={portfolio.summary} isDark={isDark} />
+                            </div>
+                        </section>
+                    )}
+
+                    {portfolio.projects?.length > 0 && (
+                        <section>
+                            <div className="flex items-center gap-4 mb-16">
+                                <span className="text-xs font-sans font-bold tracking-[0.2em] uppercase opacity-40 shrink-0">Selected Works</span>
+                                <div className="h-px bg-current w-full opacity-10"></div>
+                            </div>
+                            <div className="grid gap-20">
+                                <ProjectsSection projects={portfolio.projects} isDark={isDark} />
                             </div>
                         </section>
                     )}
 
                     {portfolio.experience?.length > 0 && (
                         <section>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-8 opacity-60">Experience</h2>
+                            <div className="flex items-center gap-4 mb-16">
+                                <span className="text-xs font-sans font-bold tracking-[0.2em] uppercase opacity-40 shrink-0">Experience</span>
+                                <div className="h-px bg-current w-full opacity-10"></div>
+                            </div>
                             <ExperienceSection experiences={portfolio.experience} isDark={isDark} />
                         </section>
                     )}
 
-                    {portfolio.projects?.length > 0 && (
-                        <section>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-8 opacity-60">Projects</h2>
-                            <ProjectsSection projects={portfolio.projects} isDark={isDark} />
-                        </section>
-                    )}
+                    <div className="grid md:grid-cols-2 gap-16 pt-16 border-t border-current/10">
+                        {portfolio.skills?.length > 0 && (
+                            <section>
+                                <h3 className="text-xs font-sans font-bold tracking-[0.2em] uppercase opacity-40 mb-8">Expertise</h3>
+                                <SkillsSection skills={portfolio.skills} isDark={isDark} />
+                            </section>
+                        )}
 
-                    {portfolio.skills?.length > 0 && (
-                        <section>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-8 opacity-60">Skills</h2>
-                            <SkillsSection skills={portfolio.skills} isDark={isDark} />
-                        </section>
-                    )}
-
-                    {portfolio.education?.length > 0 && (
-                        <section>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-8 opacity-60">Education</h2>
-                            <EducationSection education={portfolio.education} isDark={isDark} />
-                        </section>
-                    )}
+                        {portfolio.education?.length > 0 && (
+                            <section>
+                                <h3 className="text-xs font-sans font-bold tracking-[0.2em] uppercase opacity-40 mb-8">Education</h3>
+                                <EducationSection education={portfolio.education} isDark={isDark} />
+                            </section>
+                        )}
+                    </div>
                 </main>
 
-                <footer className={`mt-24 pt-8 text-sm ${isDark ? 'text-neutral-600 border-t border-neutral-800' : 'text-neutral-400 border-t border-neutral-100'}`}>
-                    <p>© {new Date().getFullYear()} {name}</p>
+                <footer className="mt-40 pt-12 border-t border-current/10 flex flex-col items-center gap-8">
+                    <div className="flex gap-8 text-sm font-sans tracking-widest uppercase opacity-60 hover:opacity-100 transition-opacity">
+                        {email && <a href={`mailto:${email}`}>Email</a>}
+                        {phone && <a href={`tel:${phone}`}>Phone</a>}
+                    </div>
+                    <p className="text-xs font-sans opacity-30">
+                        © {new Date().getFullYear()} {name}
+                    </p>
                 </footer>
             </div>
         </div>

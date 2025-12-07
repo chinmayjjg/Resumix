@@ -12,110 +12,134 @@ export default function TechTemplate({ portfolio }: { portfolio: any }) {
     const isDark = true;
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] font-mono p-4 md:p-8">
-            <div className="max-w-4xl mx-auto border border-[#30363d] rounded-lg bg-[#0d1117] shadow-xl overflow-hidden">
-                {/* Terminal Header */}
-                <div className="bg-[#161b22] px-4 py-2 border-b border-[#30363d] flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-                    <div className="ml-4 text-xs text-[#8b949e]">user@{name.toLowerCase().replace(/\s+/g, '')}:~/portfolio</div>
-                </div>
+        <div className="min-h-screen bg-[#050a0f] text-[#00ff41] font-mono selection:bg-[#003b00] selection:text-[#00ff41] overflow-x-hidden relative">
 
-                <div className="p-6 md:p-12 space-y-12">
-                    {/* Header */}
-                    <header className="space-y-4">
-                        <div className="flex items-center gap-2 text-[#58a6ff]">
-                            <span className="text-[#8b949e]">$</span>
-                            <span className="typewriter">whoami</span>
-                        </div>
-                        <div className="pl-4 border-l-2 border-[#30363d] space-y-2">
-                            <h1 className="text-4xl md:text-5xl font-bold text-[#c9d1d9]">{name}</h1>
-                            {headline && <p className="text-[#8b949e] text-xl">{headline}</p>}
-                        </div>
-                    </header>
+            {/* CRT Overlay Effects */}
+            <div className="pointer-events-none fixed inset-0 z-50 bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.15),rgba(0,0,0,0.15)_1px,transparent_1px,transparent_2px)]"></div>
+            <div className="pointer-events-none fixed inset-0 z-50 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]"></div>
 
-                    <div className="grid md:grid-cols-2 gap-12">
-                        <div className="space-y-12">
-                            <section>
-                                <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                    <span className="text-[#8b949e]">$</span>
-                                    <span>cat contact.json</span>
-                                </div>
-                                <div className="bg-[#161b22] p-4 rounded border border-[#30363d] font-sm overflow-x-auto">
-                                    <pre className="text-[#a5d6ff]">
-                                        {`{
-  "email": "${email || ''}",
-  "phone": "${phone || ''}",
-  "status": "Ready to code"
-}`}
-                                    </pre>
-                                </div>
-                            </section>
+            <div className="p-4 md:p-8 relative z-10">
+                <div className="max-w-7xl mx-auto border border-[#003b00] bg-[#0d1117] shadow-[0_0_20px_rgba(0,255,65,0.1)] min-h-[95vh] flex flex-col">
 
-                            {portfolio.skills?.length > 0 && (
-                                <section>
-                                    <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                        <span className="text-[#8b949e]">$</span>
-                                        <span>ls ./skills</span>
-                                    </div>
-                                    <SkillsSection skills={portfolio.skills} isDark={isDark} />
-                                </section>
-                            )}
+                    {/* Terminal Header */}
+                    <div className="bg-[#161b22] px-4 py-2 border-b border-[#003b00] flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                         </div>
-
-                        <div className="space-y-12">
-                            {portfolio.summary && (
-                                <section>
-                                    <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                        <span className="text-[#8b949e]">$</span>
-                                        <span>cat README.md</span>
-                                    </div>
-                                    <div className="pl-4">
-                                        <AboutSection about={portfolio.summary} isDark={isDark} />
-                                    </div>
-                                </section>
-                            )}
-                        </div>
+                        <div className="text-xs text-[#00ff41] opacity-70">root@{name.toLowerCase().replace(/\s+/g, '')}:~</div>
+                        <div className="w-16"></div>
                     </div>
 
-                    {portfolio.experience?.length > 0 && (
-                        <section>
-                            <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                <span className="text-[#8b949e]">$</span>
-                                <span>./experience.sh</span>
+                    <div className="p-6 md:p-12 lg:p-20 flex-1 flex flex-col space-y-20">
+                        {/* Hero Command */}
+                        <header className="space-y-6 min-h-[40vh] flex flex-col justify-center border-b border-[#003b00] pb-20">
+                            <div className="flex items-center gap-3 text-[#00ff41] mb-2 text-xl">
+                                <span className="">➜</span>
+                                <span className="opacity-70">~</span>
+                                <span className="animate-pulse">_</span>
                             </div>
-                            <div className="border-l border-[#30363d] pl-4">
-                                <ExperienceSection experiences={portfolio.experience} isDark={isDark} />
-                            </div>
-                        </section>
-                    )}
 
-                    {portfolio.projects?.length > 0 && (
-                        <section>
-                            <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                <span className="text-[#8b949e]">$</span>
-                                <span>git log --oneline --graph --decorate</span>
-                            </div>
-                            <ProjectsSection projects={portfolio.projects} isDark={isDark} />
-                        </section>
-                    )}
+                            <h1 className="text-5xl md:text-8xl font-bold text-[#00ff41] tracking-tight glitch-effect" style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>
+                                {name}
+                            </h1>
 
-                    {portfolio.education?.length > 0 && (
-                        <section>
-                            <div className="flex items-center gap-2 text-[#58a6ff] mb-4">
-                                <span className="text-[#8b949e]">$</span>
-                                <span>cat /etc/education</span>
-                            </div>
-                            <div className="pl-4">
-                                <EducationSection education={portfolio.education} isDark={isDark} />
-                            </div>
-                        </section>
-                    )}
+                            {headline && (
+                                <div className="text-[#00ff41] text-xl md:text-2xl opacity-80 pl-4 border-l-2 border-[#003b00] py-2">
+                                    <span className="opacity-50">// </span>{headline}
+                                </div>
+                            )}
 
-                    <footer className="pt-12 mt-12 border-t border-[#30363d] text-center text-[#8b949e] text-sm">
-                        <span className="text-[#27c93f]">➜</span> ~ exit 0
-                    </footer>
+                            <div className="pt-8 text-[#00ff41]">
+                                <p className="mb-2 opacity-50"># System Status: ONLINE</p>
+                                <p className="mb-2 opacity-50"># Available for hire: {email ? 'YES' : 'NO'}</p>
+                            </div>
+                        </header>
+
+                        {/* Main Grid */}
+                        <div className="grid md:grid-cols-2 gap-16 lg:gap-24">
+                            <div className="space-y-16">
+                                <section>
+                                    <h3 className="text-[#00ff41] mb-6 text-xl flex items-center gap-2">
+                                        <span className="opacity-50">./</span>contact_info.json
+                                    </h3>
+                                    <div className="bg-[#050a0f] p-6 border border-[#003b00] font-sm overflow-x-auto shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+                                        <pre className="text-[#00ff41]">
+                                            {`{
+  "email": "${email || 'N/A'}",
+  "phone": "${phone || 'N/A'}",
+  "encrypted": false
+}`}
+                                        </pre>
+                                    </div>
+                                </section>
+
+                                {portfolio.summary && (
+                                    <section>
+                                        <h3 className="text-[#00ff41] mb-6 text-xl flex items-center gap-2">
+                                            <span className="opacity-50">cat</span> README.md
+                                        </h3>
+                                        <div className="prose prose-invert prose-p:text-[#00ff41] prose-headings:text-[#00ff41] opacity-90">
+                                            <AboutSection about={portfolio.summary} isDark={isDark} />
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
+
+                            <div className="space-y-16">
+                                {portfolio.skills?.length > 0 && (
+                                    <section>
+                                        <h3 className="text-[#00ff41] mb-6 text-xl flex items-center gap-2">
+                                            <span className="opacity-50">ls -la</span> ./modules
+                                        </h3>
+                                        {/* CSS Hack to recolor child components */}
+                                        <div className="tech-skills-wrapper">
+                                            <SkillsSection skills={portfolio.skills} isDark={isDark} />
+                                        </div>
+                                    </section>
+                                )}
+
+                                {portfolio.experience?.length > 0 && (
+                                    <section>
+                                        <h3 className="text-[#00ff41] mb-6 text-xl flex items-center gap-2">
+                                            <span className="opacity-50">./</span>run_experience.sh
+                                        </h3>
+                                        <div className="border-l border-[#003b00] pl-6 ml-2">
+                                            <ExperienceSection experiences={portfolio.experience} isDark={isDark} />
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
+                        </div>
+
+                        {portfolio.projects?.length > 0 && (
+                            <section className="pt-12 border-t border-[#003b00]">
+                                <h3 className="text-[#00ff41] mb-8 text-xl flex items-center gap-2">
+                                    <span className="opacity-50">git log</span> --projects
+                                </h3>
+                                <div className="grid gap-8">
+                                    <ProjectsSection projects={portfolio.projects} isDark={isDark} />
+                                </div>
+                            </section>
+                        )}
+
+                        {portfolio.education?.length > 0 && (
+                            <section>
+                                <h3 className="text-[#00ff41] mb-8 text-xl flex items-center gap-2">
+                                    <span className="opacity-50">cat</span> /etc/education
+                                </h3>
+                                <div className="pl-4">
+                                    <EducationSection education={portfolio.education} isDark={isDark} />
+                                </div>
+                            </section>
+                        )}
+
+                        <footer className="pt-20 text-center text-[#00ff41] text-xs opacity-50 flex flex-col gap-2 items-center">
+                            <span>SESSION ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                            <span>TERMINATED.</span>
+                        </footer>
+                    </div>
                 </div>
             </div>
         </div>

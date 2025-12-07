@@ -10,80 +10,99 @@ export default function CreativeTemplate({ portfolio }: { portfolio: any }) {
     const { name = 'User', headline, email, phone, theme } = portfolio;
     const isDark = theme === 'dark';
 
+    const bgClass = isDark ? 'bg-black text-white' : 'bg-yellow-300 text-black';
+    const accentClass = isDark ? 'text-pink-500' : 'text-purple-600';
+    const borderClass = isDark ? 'border-pink-500' : 'border-black';
+
     return (
-        <div className={`min-h-screen ${isDark ? 'bg-[#1a1a1a] text-white' : 'bg-[#fff0e5] text-[#333]'}`}>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                <header className="py-24 text-center">
-                    <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-6 relative inline-block">
-                        <span className="relative z-10">{name}</span>
-                        <span className={`absolute top-2 left-2 w-full h-full -z-0 ${isDark ? 'bg-pink-600' : 'bg-yellow-400'}`}></span>
-                    </h1>
+        <div className={`min-h-screen ${bgClass} font-sans selection:bg-pink-500 selection:text-white overflow-hidden`}>
+
+            {/* Massive Hero */}
+            <header className="min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-24 pt-20 relative">
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/10 to-transparent pointer-events-none skew-x-12"></div>
+
+                <h1 className="text-[15vw] leading-[0.8] font-black tracking-tighter uppercase break-words mix-blend-difference z-10 transition-transform hover:scale-105 duration-500 origin-left">
+                    {name}
+                </h1>
+
+                <div className="max-w-3xl mt-12 z-10">
                     {headline && (
-                        <p className="text-2xl md:text-3xl font-bold mt-8 max-w-2xl mx-auto">
+                        <p className={`text-2xl md:text-4xl font-bold mb-8 bg-white/10 p-4 inline-block transform -rotate-1`}>
                             {headline}
                         </p>
                     )}
-                    <div className="flex justify-center gap-6 mt-12">
+
+                    <div className="flex flex-wrap gap-4 mt-8">
                         {email && (
-                            <a href={`mailto:${email}`} className={`px-8 py-4 font-bold text-lg border-2 ${isDark ? 'border-white hover:bg-white hover:text-black' : 'border-black hover:bg-black hover:text-white'} transition-all`}>
-                                Say Hello
+                            <a href={`mailto:${email}`} className={`px-8 py-4 text-xl font-black uppercase border-4 ${borderClass} hover:bg-black hover:text-white hover:border-black transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2`}>
+                                Contact
+                            </a>
+                        )}
+                        {phone && (
+                            <a href={`tel:${phone}`} className={`px-8 py-4 text-xl font-black uppercase border-4 ${borderClass} hover:bg-black hover:text-white hover:border-black transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2`}>
+                                Call Me
                             </a>
                         )}
                     </div>
-                </header>
+                </div>
+            </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-24">
-                    <div className="md:col-span-8 space-y-24">
-                        {portfolio.projects?.length > 0 && (
-                            <section>
-                                <h2 className="text-4xl font-black mb-12 italic">SELECTED WORKS</h2>
+            {/* Asymmetric Content Grid */}
+            <div className={`grid grid-cols-1 lg:grid-cols-12 min-h-screen`}>
+                {/* Left Col - Projects */}
+                <div className="lg:col-span-8 p-6 md:p-12 lg:p-24 space-y-32">
+                    {portfolio.projects?.length > 0 && (
+                        <section>
+                            <h2 className={`text-6xl md:text-8xl font-black mb-16 uppercase italic ${accentClass}`}>Selected Works</h2>
+                            <div className="grid gap-16">
                                 <ProjectsSection projects={portfolio.projects} isDark={isDark} />
-                            </section>
-                        )}
+                            </div>
+                        </section>
+                    )}
 
-                        {portfolio.experience?.length > 0 && (
-                            <section>
-                                <h2 className="text-4xl font-black mb-12 italic">EXPERIENCE</h2>
-                                <div className={`p-8 border-4 ${isDark ? 'border-pink-600' : 'border-yellow-400'}`}>
-                                    <ExperienceSection experiences={portfolio.experience} isDark={isDark} />
-                                </div>
-                            </section>
-                        )}
-                    </div>
-
-                    <aside className="md:col-span-4 space-y-16">
-                        {portfolio.summary && (
-                            <section className={`${isDark ? 'bg-pink-600' : 'bg-yellow-400'} p-8 text-black rotate-1 hover:rotate-0 transition-transform`}>
-                                <h2 className="text-2xl font-black mb-4 uppercase">Profile</h2>
-                                <AboutSection about={portfolio.summary} isDark={isDark} />
-                            </section>
-                        )}
-
-                        {portfolio.skills?.length > 0 && (
-                            <section>
-                                <h2 className="text-2xl font-black mb-6 uppercase border-b-4 border-current inline-block">Toolkit</h2>
-                                <SkillsSection skills={portfolio.skills} isDark={isDark} />
-                            </section>
-                        )}
-
-                        {portfolio.education?.length > 0 && (
-                            <section>
-                                <h2 className="text-2xl font-black mb-6 uppercase border-b-4 border-current inline-block">Learning</h2>
-                                <EducationSection education={portfolio.education} isDark={isDark} />
-                            </section>
-                        )}
-
-                        <div className="text-center md:text-left">
-                            {phone && (
-                                <a href={`tel:${phone}`} className="text-xl font-bold hover:underline">{phone}</a>
-                            )}
-                        </div>
-                    </aside>
+                    {portfolio.experience?.length > 0 && (
+                        <section>
+                            <h2 className={`text-6xl md:text-8xl font-black mb-16 uppercase italic ${accentClass}`}>History</h2>
+                            <div className={`p-8 border-4 ${borderClass} shadow-[12px_12px_0px_0px_rgba(0,0,0,0.5)] bg-white/5`}>
+                                <ExperienceSection experiences={portfolio.experience} isDark={isDark} />
+                            </div>
+                        </section>
+                    )}
                 </div>
 
-                <footer className="py-12 text-center font-bold uppercase tracking-widest text-sm opacity-50">
-                    © {name} {new Date().getFullYear()} • KEEP CREATING
-                </footer>
+                {/* Right Col - Info Sidebar */}
+                <div className={`lg:col-span-4 p-6 md:p-12 space-y-16 border-l-4 ${borderClass} bg-white/5`}>
+                    {portfolio.summary && (
+                        <section>
+                            <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-current inline-block pb-2">About</h2>
+                            <div className="text-lg md:text-xl font-medium leading-relaxed">
+                                <AboutSection about={portfolio.summary} isDark={isDark} />
+                            </div>
+                        </section>
+                    )}
+
+                    {portfolio.skills?.length > 0 && (
+                        <section>
+                            <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-current inline-block pb-2">Toolkit</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {/* Custom styling for skills usually handled in component, but wrapper helps */}
+                                <SkillsSection skills={portfolio.skills} isDark={isDark} />
+                            </div>
+                        </section>
+                    )}
+
+                    {portfolio.education?.length > 0 && (
+                        <section>
+                            <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-current inline-block pb-2">Education</h2>
+                            <EducationSection education={portfolio.education} isDark={isDark} />
+                        </section>
+                    )}
+
+                    <div className="pt-12 mt-12 border-t-4 border-current opacity-50">
+                        <p className="font-bold uppercase tracking-widest">© {new Date().getFullYear()} {name}</p>
+                        <p className="font-mono text-sm mt-2">Designed with Impact</p>
+                    </div>
+                </div>
             </div>
         </div>
     );
