@@ -5,8 +5,9 @@ const MinimalTemplate = dynamic(() => import('./templates/MinimalTemplate'));
 const ProfessionalTemplate = dynamic(() => import('./templates/ProfessionalTemplate'));
 const CreativeTemplate = dynamic(() => import('./templates/CreativeTemplate'));
 const TechTemplate = dynamic(() => import('./templates/TechTemplate'));
+const CuteTemplate = dynamic(() => import('./templates/CuteTemplate'));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export default function PortfolioLayout({ portfolio }: { portfolio: any }) {
   const template = portfolio.template || 'modern';
 
@@ -19,6 +20,8 @@ export default function PortfolioLayout({ portfolio }: { portfolio: any }) {
       return <CreativeTemplate portfolio={portfolio} />;
     case 'tech':
       return <TechTemplate portfolio={portfolio} />;
+    case 'cute':
+      return <CuteTemplate portfolio={portfolio} />;
     case 'modern':
     default:
       return <ModernTemplate portfolio={portfolio} />;

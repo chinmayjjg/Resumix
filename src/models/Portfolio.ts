@@ -39,7 +39,7 @@ export interface IPortfolio extends Document {
   experience: IExperience[];
   education: IEducation[];
   projects: IProject[];
-  template?: 'modern' | 'minimal' | 'professional' | 'creative' | 'tech';
+  template?: 'modern' | 'minimal' | 'professional' | 'creative' | 'tech' | 'cute';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -77,7 +77,7 @@ const PortfolioSchema = new Schema<IPortfolio>(
     },
     template: {
       type: String,
-      enum: ['modern', 'minimal', 'professional', 'creative', 'tech'],
+      enum: ['modern', 'minimal', 'professional', 'creative', 'tech', 'cute'],
       default: 'modern'
     },
     projects: [

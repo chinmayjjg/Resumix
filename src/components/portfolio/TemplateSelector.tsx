@@ -6,6 +6,7 @@ const templates = [
     { id: 'professional', name: 'Professional', description: 'Corporate and structured', color: 'bg-indigo-600' },
     { id: 'creative', name: 'Creative', description: 'Bold and artistic', color: 'bg-pink-500' },
     { id: 'tech', name: 'Tech', description: 'Dark terminal style', color: 'bg-slate-900' },
+    { id: 'cute', name: 'Cute Cat', description: 'Pink, flowers & cats', color: 'bg-pink-300' },
 ];
 
 interface TemplateSelectorProps {

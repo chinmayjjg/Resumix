@@ -4,7 +4,7 @@ const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) throw new Error("Missing MONGODB_URI in .env");
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const cached = (global as any).mongoose || { conn: null, promise: null };
 
 export async function connectDB() {

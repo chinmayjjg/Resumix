@@ -5,6 +5,7 @@ import MinimalTemplate from './templates/MinimalTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import CreativeTemplate from './templates/CreativeTemplate';
 import TechTemplate from './templates/TechTemplate';
+import CuteTemplate from './templates/CuteTemplate';
 
 interface ThemePreviewGridProps {
     portfolioData: Partial<IPortfolio>;
@@ -18,6 +19,7 @@ const TEMPLATES = [
     { id: 'professional', name: 'Professional', component: ProfessionalTemplate },
     { id: 'creative', name: 'Creative', component: CreativeTemplate },
     { id: 'tech', name: 'Tech', component: TechTemplate },
+    { id: 'cute', name: 'Cute Cat', component: CuteTemplate },
 ];
 
 export default function ThemePreviewGrid({ portfolioData, onSelect, currentTemplate }: ThemePreviewGridProps) {
