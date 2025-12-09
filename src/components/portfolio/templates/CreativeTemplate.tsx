@@ -24,6 +24,9 @@ export default function CreativeTemplate({ portfolio }: { portfolio: any }) {
                 <h1 className="text-[15vw] leading-[0.8] font-black tracking-tighter uppercase break-words mix-blend-difference z-10 transition-transform hover:scale-105 duration-500 origin-left">
                     {name}
                 </h1>
+                {portfolio.userImage && (
+                    <img src={portfolio.userImage} alt="Profile" className="h-24 w-24 rounded-full mx-auto mt-4" />
+                )}
 
                 <div className="max-w-3xl mt-12 z-10">
                     {headline && (

@@ -23,6 +23,11 @@ export default function ModernTemplate({ portfolio }: { portfolio: any }) {
                 {/* Full Screen Hero Section */}
                 <header className="min-h-screen flex flex-col justify-center items-center text-center px-6 md:px-12 relative">
                     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
+                        {portfolio.userImage && (
+                            <div className="flex justify-center mb-8">
+                                <img src={portfolio.userImage} alt="Profile" className="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover shadow-2xl border-4 border-white/20 backdrop-blur-sm" />
+                            </div>
+                        )}
                         <div className="inline-block relative">
                             <h1 className="text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 pb-4">
                                 {name}

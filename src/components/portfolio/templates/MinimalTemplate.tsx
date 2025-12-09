@@ -19,6 +19,11 @@ export default function MinimalTemplate({ portfolio }: { portfolio: any }) {
 
                 {/* Minimal Header */}
                 <header className="mb-32 space-y-6 text-center">
+                    {portfolio.userImage && (
+                        <div className="flex justify-center mb-12">
+                            <img src={portfolio.userImage} alt="Profile" className="w-32 h-32 rounded-full object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
+                        </div>
+                    )}
                     <p className="text-xs font-sans font-bold tracking-[0.3em] uppercase opacity-40">Portfolio</p>
                     <h1 className="text-5xl md:text-7xl font-light tracking-wide text-current">
                         {name}

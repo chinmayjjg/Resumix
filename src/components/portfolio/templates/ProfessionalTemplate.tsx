@@ -21,6 +21,11 @@ export default function ProfessionalTemplate({ portfolio }: { portfolio: any }) 
             <aside className={`w-full md:w-80 lg:w-96 md:h-screen md:fixed flex flex-col justify-between p-8 md:p-12 z-10 ${isDark ? 'bg-slate-950' : 'bg-slate-900'} text-white`}>
                 <div className="space-y-8">
                     <div className="w-20 h-2 bg-blue-500 mb-8"></div>
+                    {portfolio.userImage && (
+                        <div className="mb-8">
+                            <img src={portfolio.userImage} alt="Profile" className="w-32 h-32 rounded-lg object-cover shadow-lg border-2 border-white/20" />
+                        </div>
+                    )}
                     <div>
                         <h1 className="text-4xl lg:text-5xl font-serif font-bold leading-tight tracking-tight mb-4">
                             {name}

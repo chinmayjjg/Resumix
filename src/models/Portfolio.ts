@@ -40,6 +40,7 @@ export interface IPortfolio extends Document {
   education: IEducation[];
   projects: IProject[];
   template?: 'modern' | 'minimal' | 'professional' | 'creative' | 'tech' | 'cute';
+  userImage?: string; // URL to profile picture
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,6 +81,7 @@ const PortfolioSchema = new Schema<IPortfolio>(
       enum: ['modern', 'minimal', 'professional', 'creative', 'tech', 'cute'],
       default: 'modern'
     },
+    userImage: { type: String },
     projects: [
       {
         name: String,

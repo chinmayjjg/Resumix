@@ -40,6 +40,7 @@ interface PortfolioData {
     theme: 'light' | 'dark';
     userId?: string;
     template?: string;
+    userImage?: string; // URL of uploaded profile picture
 }
 
 const initialData: PortfolioData = {
@@ -53,6 +54,7 @@ const initialData: PortfolioData = {
     education: [],
     projects: [],
     theme: 'light',
+    userImage: undefined,
 };
 
 export default function BuilderPage() {
@@ -84,6 +86,29 @@ export default function BuilderPage() {
             console.error('Failed to fetch portfolio', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Handler for uploading profile picture
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await res.json();
+            if (result.url) {
+                handleChange('userImage', result.url);
+            } else {
+                alert('Upload failed');
+            }
+        } catch (err) {
+            console.error('Upload error', err);
+            alert('Upload error');
         }
     };
 
@@ -277,6 +302,19 @@ export default function BuilderPage() {
                                         rows={3}
                                         className="w-full p-2 border rounded-md"
                                     />
+                                </div>
+                                {/* Profile Picture Upload */}
+                                <div className="md:col-span-2 flex items-center space-x-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        className="p-2 border rounded-md"
+                                    />
+                                    {data.userImage && (
+                                        <img src={data.userImage} alt="Profile" className="h-12 w-12 rounded-full object-cover" />
+                                    )}
                                 </div>
                             </div>
                         </section>

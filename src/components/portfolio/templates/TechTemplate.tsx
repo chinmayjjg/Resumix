@@ -44,6 +44,9 @@ export default function TechTemplate({ portfolio }: { portfolio: any }) {
                             <h1 className="text-5xl md:text-8xl font-bold text-[#00ff41] tracking-tight glitch-effect" style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>
                                 {name}
                             </h1>
+                            {portfolio.userImage && (
+                                <img src={portfolio.userImage} alt="Profile" className="h-24 w-24 rounded-full mx-auto mt-4" />
+                            )}
 
                             {headline && (
                                 <div className="text-[#00ff41] text-xl md:text-2xl opacity-80 pl-4 border-l-2 border-[#003b00] py-2">

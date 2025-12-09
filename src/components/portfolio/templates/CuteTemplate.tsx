@@ -39,7 +39,11 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
                 <header className="text-center mb-16 relative">
                     <div className="inline-block p-2 rounded-full border-4 border-pink-200 bg-white mb-6 shadow-xl transform hover:scale-105 transition-transform duration-300">
                         <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-pink-100 flex items-center justify-center">
-                            <span className="text-6xl">👩‍💻</span>
+                            {portfolio.userImage ? (
+                                <img src={portfolio.userImage} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-6xl">👩‍💻</span>
+                            )}
                         </div>
                     </div>
 
