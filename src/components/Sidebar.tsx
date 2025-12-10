@@ -23,6 +23,11 @@ const sidebarItems = [
         icon: FileText,
     },
     {
+        title: "Builder",
+        href: "/dashboard/builder",
+        icon: FileText, // Reusing FileText or import a new one like PenTool
+    },
+    {
         title: "Settings",
         href: "/dashboard/settings",
         icon: Settings,
