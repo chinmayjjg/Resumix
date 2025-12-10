@@ -22,8 +22,13 @@ export default function ProfessionalTemplate({ portfolio }: { portfolio: any }) 
                 <div className="space-y-8">
                     <div className="w-20 h-2 bg-blue-500 mb-8"></div>
                     {portfolio.userImage && (
-                        <div className="mb-8">
-                            <img src={portfolio.userImage} alt="Profile" className="w-32 h-32 rounded-lg object-cover shadow-lg border-2 border-white/20" />
+                        <div className="mb-10 relative group">
+                            <div className="absolute top-4 left-4 w-40 h-40 bg-blue-500/20 rounded-[2rem] -z-10 group-hover:top-2 group-hover:left-2 transition-all duration-300"></div>
+                            <img
+                                src={portfolio.userImage}
+                                alt="Profile"
+                                className="w-40 h-40 rounded-[2rem] object-cover shadow-xl border border-white/10 filter brightness-90 group-hover:brightness-100 transition-all duration-300"
+                            />
                         </div>
                     )}
                     <div>

@@ -37,13 +37,25 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
 
                 {/* Header / Hero */}
                 <header className="text-center mb-16 relative">
-                    <div className="inline-block p-2 rounded-full border-4 border-pink-200 bg-white mb-6 shadow-xl transform hover:scale-105 transition-transform duration-300">
-                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-pink-100 flex items-center justify-center">
-                            {portfolio.userImage ? (
-                                <img src={portfolio.userImage} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-6xl">👩‍💻</span>
-                            )}
+                    <div className="inline-block relative group">
+                        {/* Decorative floating elements */}
+                        <div className="absolute -top-4 -right-4 text-4xl animate-bounce delay-100 z-20">✨</div>
+                        <div className="absolute -bottom-2 -left-4 text-4xl animate-bounce delay-300 z-20">🌸</div>
+
+                        <div className="p-3 rounded-full border-4 border-dashed border-pink-300 bg-white shadow-[0_10px_40px_-10px_rgba(244,114,182,0.5)] transform hover:rotate-3 transition-transform duration-300 relative overflow-hidden">
+                            <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden bg-pink-50 relative">
+                                {portfolio.userImage ? (
+                                    <img
+                                        src={portfolio.userImage}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <span className="text-6xl">👩‍💻</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 

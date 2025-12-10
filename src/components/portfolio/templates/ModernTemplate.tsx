@@ -24,8 +24,21 @@ export default function ModernTemplate({ portfolio }: { portfolio: any }) {
                 <header className="min-h-screen flex flex-col justify-center items-center text-center px-6 md:px-12 relative">
                     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
                         {portfolio.userImage && (
-                            <div className="flex justify-center mb-8">
-                                <img src={portfolio.userImage} alt="Profile" className="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover shadow-2xl border-4 border-white/20 backdrop-blur-sm" />
+                            <div className="relative inline-block mb-10 group cursor-pointer perspective-1000">
+                                <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 animate-pulse ${isDark ? 'bg-blue-500' : 'bg-blue-300'}`}></div>
+                                <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full p-1 bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shadow-2xl transform transition-transform duration-500 hover:rotate-6 hover:scale-105">
+                                    <div className={`w-full h-full rounded-full p-1 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+                                        <div className="w-full h-full rounded-full overflow-hidden relative">
+                                            <img
+                                                src={portfolio.userImage}
+                                                alt="Profile"
+                                                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                            {/* Shine effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
                         <div className="inline-block relative">

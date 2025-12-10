@@ -21,11 +21,15 @@ export default function CreativeTemplate({ portfolio }: { portfolio: any }) {
             <header className="min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-24 pt-20 relative">
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/10 to-transparent pointer-events-none skew-x-12"></div>
 
-                <h1 className="text-[15vw] leading-[0.8] font-black tracking-tighter uppercase break-words mix-blend-difference z-10 transition-transform hover:scale-105 duration-500 origin-left">
+                <h1 className="text-[15vw] leading-[0.8] font-black tracking-tighter uppercase break-words mix-blend-difference z-10 transition-transform hover:scale-105 duration-500 origin-left relative">
                     {name}
                 </h1>
+
                 {portfolio.userImage && (
-                    <img src={portfolio.userImage} alt="Profile" className="h-24 w-24 rounded-full mx-auto mt-4" />
+                    <div className="absolute top-1/2 right-10 md:right-32 -translate-y-1/2 w-[30vh] h-[30vh] md:w-[50vh] md:h-[50vh] z-0 opacity-80 mix-blend-multiply pointer-events-none grayscale contrast-125">
+                        <img src={portfolio.userImage} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                        <div className="absolute inset-0 bg-yellow-300 mix-blend-color opacity-50 rounded-full"></div>
+                    </div>
                 )}
 
                 <div className="max-w-3xl mt-12 z-10">

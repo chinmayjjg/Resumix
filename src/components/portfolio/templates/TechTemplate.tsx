@@ -44,8 +44,26 @@ export default function TechTemplate({ portfolio }: { portfolio: any }) {
                             <h1 className="text-5xl md:text-8xl font-bold text-[#00ff41] tracking-tight glitch-effect" style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>
                                 {name}
                             </h1>
+
                             {portfolio.userImage && (
-                                <img src={portfolio.userImage} alt="Profile" className="h-24 w-24 rounded-full mx-auto mt-4" />
+                                <div className="mt-8 relative w-48 h-48 group">
+                                    <div className="absolute inset-0 bg-[#00ff41] opacity-20 animate-pulse rounded-sm"></div>
+                                    <div className="absolute inset-0 border-2 border-[#00ff41] rounded-sm bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,#00ff41_3px)] opacity-30"></div>
+
+                                    {/* Corners */}
+                                    <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-[#00ff41]"></div>
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-[#00ff41]"></div>
+                                    <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#00ff41]"></div>
+                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-[#00ff41]"></div>
+
+                                    <img
+                                        src={portfolio.userImage}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 filter contrast-125"
+                                        style={{ imageRendering: 'pixelated' }}
+                                    />
+                                    <div className="absolute top-0 left-0 w-full h-[2px] bg-[#00ff41] shadow-[0_0_10px_#00ff41] animate-[scan_2s_linear_infinite] opacity-50 pointer-events-none"></div>
+                                </div>
                             )}
 
                             {headline && (

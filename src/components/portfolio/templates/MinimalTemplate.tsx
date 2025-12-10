@@ -18,24 +18,32 @@ export default function MinimalTemplate({ portfolio }: { portfolio: any }) {
             <div className="max-w-3xl mx-auto px-8 py-24 md:py-40 relative z-10">
 
                 {/* Minimal Header */}
-                <header className="mb-32 space-y-6 text-center">
+                <header className="mb-32 space-y-8 text-center flex flex-col items-center">
                     {portfolio.userImage && (
-                        <div className="flex justify-center mb-12">
-                            <img src={portfolio.userImage} alt="Profile" className="w-32 h-32 rounded-full object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
+                        <div className="relative group mb-8">
+                            <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-5 rounded-full transition-opacity duration-500 scale-125"></div>
+                            <img
+                                src={portfolio.userImage}
+                                alt="Profile"
+                                className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover grayscale brightness-110 contrast-125 hover:grayscale-0 transition-all duration-700 ease-out"
+                            />
                         </div>
                     )}
-                    <p className="text-xs font-sans font-bold tracking-[0.3em] uppercase opacity-40">Portfolio</p>
-                    <h1 className="text-5xl md:text-7xl font-light tracking-wide text-current">
-                        {name}
-                    </h1>
-                    {headline && (
-                        <div className="w-12 h-px bg-current mx-auto opacity-30 my-8"></div>
-                    )}
-                    {headline && (
-                        <p className="text-lg md:text-xl italic opacity-60 max-w-md mx-auto leading-loose">
-                            {headline}
-                        </p>
-                    )}
+
+                    <div className="space-y-4">
+                        <p className="text-xs font-sans font-bold tracking-[0.4em] uppercase opacity-40">Portfolio</p>
+                        <h1 className="text-5xl md:text-8xl font-light tracking-wide text-current">
+                            {name}
+                        </h1>
+                        {headline && (
+                            <div className="w-12 h-px bg-current mx-auto opacity-30 my-8"></div>
+                        )}
+                        {headline && (
+                            <p className="text-lg md:text-xl italic opacity-60 max-w-md mx-auto leading-loose">
+                                {headline}
+                            </p>
+                        )}
+                    </div>
                 </header>
 
                 <main className="space-y-32">
