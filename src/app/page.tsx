@@ -143,7 +143,7 @@ export default function Home() {
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">Resumix</span>
             </div>
-            <p className="text-slate-500 text-sm">© 2024 Resumix. All rights reserved.</p>
+            <p className="text-slate-500 text-sm">© 2025 Resumix. All rights reserved.</p>
           </div>
           <div className="flex gap-8 text-sm font-medium text-slate-600 dark:text-slate-400">
             <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Privacy Policy</a>

@@ -6,117 +6,327 @@ interface Pdf2JsonPage {
   Texts: Pdf2JsonBlock[];
 }
 
-interface Pdf2JsonData {
+export interface Pdf2JsonData {
   Pages: Pdf2JsonPage[];
 }
 
 /**
- * Fixes common PDF parsing issues like merged words (e.g., 'KnowledgeManagementSystem' -> 'Knowledge Management System') 
- * and inconsistent separators.
+ * Standardizes text by fixing common PDF parsing artifacts.
  */
 function cleanRawText(text: string): string {
   if (!text) return '';
 
   let cleaned = text;
 
-  // 1. Re-introduce spaces where camelCase words were merged.
+  // Fix merged camelCase words (e.g., "KnowledgeManagement" -> "Knowledge Management")
   cleaned = cleaned.replace(/([a-z])([A-Z])/g, '$1 $2');
 
-  // 2. Fix the fragmented titles by replacing the dash/separator with a single space.
-  // This addresses issues like "SecondBrain - K nowledgeManagementSystem"
-  cleaned = cleaned.replace(/\s*–\s*|\s*-\s*/g, ' ');
+  // Normalize specific unicode dashes to standard hyphen
+  cleaned = cleaned.replace(/–|—/g, '-');
 
-  // 3. Normalize multiple spaces, newlines, and tabs into a single space
-  cleaned = cleaned.replace(/\s+/g, ' ');
+  // We DO NOT remove dashes globally as it breaks date ranges (e.g. "2020 - 2021").
 
-  // 4. Ensure there is a space *after* punctuation, fixing "Boinda,Angul"
-  cleaned = cleaned.replace(/([.,:;])(\S)/g, '$1 $2');
-
-  return cleaned.trim();
+  return cleaned;
 }
 
 /**
- * Extracts project titles and summaries from the cleaned text, 
- * using specific resume section markers and structural keywords.
+ * Map of standard resume section headers to normalized keys.
  */
+const SECTION_HEADERS: Record<string, string> = {
+  'EXPERIENCE': 'experience',
+  'WORK EXPERIENCE': 'experience',
+  'EMPLOYMENT HISTORY': 'experience',
+  'PROFESSIONAL EXPERIENCE': 'experience',
+  'EDUCATION': 'education',
+  'ACADEMIC BACKGROUND': 'education',
+  'SKILLS': 'skills',
+  'TECHNICAL SKILLS': 'skills',
+  'CORE COMPETENCIES': 'skills',
+  'PROJECTS': 'projects',
+  'TECHNICAL PROJECTS': 'projects',
+  'PERSONAL PROJECTS': 'projects',
+  'KEY ACHIEVEMENTS': 'achievements',
+  'SUMMARY': 'summary',
+  'PROFESSIONAL SUMMARY': 'summary',
+  'PROFILE': 'summary',
+  'CONTACT': 'contact',
+};
+
+/**
+ * Splits the raw text into sections based on known headers.
+ */
+function extractSections(text: string): Record<string, string> {
+  const lines = text.split(/\r?\n/);
+  const sections: Record<string, string> = {
+    'summary': '', // Default bucket for top content
+  };
+
+  let currentSection = 'summary';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Check if this line is a header
+    // Heuristic: Uppercase, relatively short, matches known keywords
+    if (line) {
+      const upperLine = line.toUpperCase().replace(/[^A-Z\s]/g, '').trim();
+      if (SECTION_HEADERS[upperLine] && line.length < 50) {
+        currentSection = SECTION_HEADERS[upperLine];
+        if (!sections[currentSection]) sections[currentSection] = '';
+        continue;
+      }
+    }
+
+    // Append line to current section
+    // If line is empty, we still add a newline to preserve the gap
+    sections[currentSection] += line + '\n';
+  }
+
+  return sections;
+}
+
+/**
+ * Extract Experience Items
+ * Heuristic: Look for company names or date ranges to split items.
+ */
+function extractExperience(text: string) {
+  if (!text) return [];
+
+  const items: { company: string; role: string; duration: string; description: string }[] = [];
+
+  // Split by double newlines to separate distinct blocks
+  const blocks = text.split(/\n\s*\n/);
+
+  for (const block of blocks) {
+    const cleanBlock = block.trim();
+    if (!cleanBlock) continue;
+
+    // Attempt to extract a date
+    // Relaxed regex: Look for year patterns and "Present"
+    const dateMatch = cleanBlock.match(/((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{4}|Present|Current|\d{4})\s*(-|to)\s*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{4}|Present|Current|\d{4})/i);
+    const duration = dateMatch ? dateMatch[0] : '';
+
+    // Attempt to extract Company and Role
+    const lines = cleanBlock.split('\n');
+    let company = '', role = '';
+
+    if (lines.length > 0) {
+      // If the first line is just the duration, skip it
+      let titleLine = lines[0];
+      if (duration && titleLine.trim() === duration) {
+        titleLine = lines[1] || '';
+      } else {
+        titleLine = titleLine.replace(duration, '').trim();
+      }
+
+      const parts = titleLine.split(/[-|–,]/).map(s => s.trim()).filter(s => s.length > 0);
+
+      if (parts.length >= 2) {
+        role = parts[0];
+        company = parts[1];
+      } else {
+        role = titleLine || 'Role';
+        company = lines[1]?.replace(duration, '').trim() || '';
+      }
+    }
+
+    const description = cleanBlock
+      .replace(duration, '')
+      .replace(lines[0] || '', '') // Remove the title line we processed
+      .replace(lines[1] && company === lines[1].trim() ? lines[1] : '', '') // Remove company line if separate
+      .replace(/\s+/g, ' ').trim();
+
+    items.push({
+      company: company || 'Company',
+      role: role || 'Role',
+      duration,
+      description
+    });
+  }
+
+  return items;
+}
+
+/**
+ * Extract Education Items
+ */
+function extractEducation(text: string) {
+  if (!text) return [];
+  const items: { school: string; degree: string; year: string }[] = [];
+
+  const blocks = text.split(/\n\s*\n/);
+
+  for (const block of blocks) {
+    const cleanBlock = block.trim();
+    if (!cleanBlock) continue;
+
+    const yearMatch = cleanBlock.match(/\d{4}\s*[-–]\s*(?:\d{4}|Present)/) || cleanBlock.match(/\d{4}/);
+    const year = yearMatch ? yearMatch[0] : '';
+
+    let degree = '', school = '';
+
+    if (cleanBlock.toLowerCase().includes('university') || cleanBlock.toLowerCase().includes('college') || cleanBlock.toLowerCase().includes('institute')) {
+      // Heuristic: The part with "University/College" is the school
+      const lines = cleanBlock.split('\n');
+      for (const line of lines) {
+        if (line.match(/(university|college|institute)/i)) {
+          school = line.trim();
+        } else if (!degree) {
+          degree = line.trim();
+        }
+      }
+    }
+
+    if (school || degree) {
+      items.push({
+        school: school || 'University',
+        degree: degree || 'Degree',
+        year
+      });
+    }
+  }
+
+  return items;
+}
+
+function extractSkills(text: string): string[] {
+  if (!text) return [];
+
+  // If text contains bullets or commas, split by them
+  const potentialSkills = text.split(/[,•\n]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 2 && s.length < 30); // simplistic length filter
+
+  return [...new Set(potentialSkills)]; // Unique
+}
+
+
 function extractProjects(text: string): { name: string; summary: string }[] {
-  const projects = [];
+  if (!text) return [];
 
-  // Find the section between TECHNICAL PROJECTS and KEY ACHIEVEMENTS
-  const sectionMatch = text.match(/TECHNICAL PROJECTS(.*?)(?=KEY ACHIEVEMENTS)/);
-  if (!sectionMatch) return [];
+  // 1. Heal specific broken lines in projects (e.g. "Title - K" \n "nowledge")
+  let healedText = text.replace(/([A-Z])\n\s*([a-z])/g, '$1$2');
 
-  const sectionText = sectionMatch[1].trim();
+  // 2. Fix camelCase again
+  healedText = healedText.replace(/([a-z])([A-Z])/g, '$1 $2');
 
-  // Regex Pattern:
-  // Captures a Project Name (capitalized words) followed by a link/URL keyword, 
-  // and then the entire description block until the next project name or section end.
-  // This is robust against the internal bullet points and multi-line descriptions.
-  const projectRegex = /([A-Z][\w\s]+?)\s*(GitHub|Demo|http|Built|Implemented)(.*?)(?=\s*[A-Z][\w\s]+?|\s*$)/g;
+  const projects: { name: string; summary: string }[] = [];
 
-  let match;
-  while ((match = projectRegex.exec(sectionText)) !== null) {
-    let title = match[1].trim();
-    const rawSummary = match[3].trim();
+  // Split blocks by double newlines or bold-ish lines
+  const blocks = healedText.split(/\n\s*\n/);
 
-    // Clean up the title by removing trailing separators/links.
-    title = title.replace(/\s+(GitHub|Demo|http|Built|Implemented)$/i, '').trim();
+  for (const block of blocks) {
+    const cleanBlock = block.trim();
+    if (cleanBlock.length < 5) continue;
 
-    // Extract the main description text, prioritizing text after the first bullet point if available.
-    const summaryMatch = rawSummary.match(/•\s*(.*?)(?=\s*•\s*[A-Z]|$)/);
-    let summary = summaryMatch ? summaryMatch[1].trim() : rawSummary.split(/[.?!]\s*[A-Z]/)[0].trim();
+    // Check if this block contains multiple "Title - Summary" lines
+    const lines = cleanBlock.split('\n');
+    let currentProject: { name: string; summary: string } | null = null;
 
-    // Final cleanup on the summary
-    summary = summary.replace(/\s*•\s*/g, '. ').replace(/\s+/g, ' ').trim();
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
 
-    if (title && summary) {
-      projects.push({ name: title, summary: summary });
+      // Heuristic: Is this a new project title?
+      // 1. It's the first line of the block
+      // 2. OR it matches "Name - Description" pattern (Name starts with Capital)
+      // 3. AND it's not just a continuation of the previous sentence (lowercase start? No, title matches Capital)
+
+      const isDashTitle = /^[A-Z].*?\s+-\s+/.test(line);
+
+      if (currentProject === null || isDashTitle) {
+        // Push previous project if exists
+        if (currentProject) {
+          projects.push(currentProject);
+        }
+
+        // Start new project
+        if (isDashTitle) {
+          const parts = line.split(/\s+-\s+/);
+          const name = parts[0].trim();
+          const summary = parts.slice(1).join(' - ').trim();
+          currentProject = { name, summary };
+        } else {
+          // Determine if we should treat this line as a name
+          // If it is the first line, yes.
+          if (currentProject === null) {
+            currentProject = { name: line, summary: '' };
+          } else {
+            // Append to current project summary
+            currentProject.summary += (currentProject.summary ? ' ' : '') + line;
+          }
+        }
+      } else {
+        // Append to current project summary
+        if (currentProject) {
+          currentProject.summary += (currentProject.summary ? ' ' : '') + line;
+        }
+      }
+    }
+
+    if (currentProject) {
+      projects.push(currentProject);
     }
   }
 
   return projects;
 }
 
-// --------------------------------------------------------------------------------------------------
 
 export function transformResumeData(rawData: Pdf2JsonData) {
-  // 1. Extract and decode all text blocks
+  // 1. Flatten text with basic decoding
   const textBlocks = rawData.Pages.flatMap((p) =>
     p.Texts.map((t) => decodeURIComponent(t.text))
   );
 
-  // 2. Join with double newline to preserve block separation
-  const joinedRaw = textBlocks.join('\n\n');
+  // 2. Initial cleanup of individual blocks before joining
+  // (Sometimes blocks are just " " or encoded artifacts)
 
-  // 3. APPLY THE CLEANING FIX
-  const cleanedText = cleanRawText(joinedRaw);
+  // 3. Join with newlines to preserve structure for section detection
+  const fullText = textBlocks.join('\n');
 
-  // 4. Core Contact Extraction (using the CLEANED text)
-  const nameMatch = cleanedText.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)/);
-  const name = nameMatch ? `${nameMatch[1]} ${nameMatch[2]}` : textBlocks[0] || 'Unknown User';
+  // 4. Clean artifacts while preserving newlines
+  const cleanedText = cleanRawText(fullText);
 
-  const email = cleanedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/)?.[0] || '';
+  // 5. Section Parsing
+  const sections = extractSections(cleanedText);
 
-  // Robust phone regex
-  const phone = cleanedText.match(/(\+?\d{1,3}[\s-]?)?(\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}/)?.[0] || '';
+  // 6. Field Extraction
 
-  // 5. Skills Extraction (based on known terms in your resume)
-  const potentialSkills = ['TypeScript', 'HTML5', 'CSS3', 'Node.js', 'Express', 'MongoDB', 'REST', 'Git', 'VSCode', 'Vercel', 'System Design', 'Cloud Deployment'];
-  const extractedSkills = potentialSkills.filter(skill => new RegExp(skill.replace(/\s/g, '\\s*'), 'i').test(cleanedText));
+  // Contact (Name/Email/Phone) - look globally but prioritize top sections
+  const contactText = (sections['summary'] + '\n' + sections['contact']).slice(0, 1000); // First 1000 chars
 
-  // 6. Projects Extraction
-  const extractedProjects = extractProjects(cleanedText);
+  const nameMatch = contactText.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)/);
+  const name = nameMatch ? `${nameMatch[1]} ${nameMatch[2]}` : 'Your Name';
+
+  const email = contactText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/)?.[0] || '';
+  const phone = contactText.match(/(\+?\d{1,3}[\s-]?)?(\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}/)?.[0] || '';
+
+  // Skills
+  const skills = extractSkills(sections['skills'] || '');
+
+  // Projects
+  const projects = extractProjects(sections['projects'] || '');
+
+  // Experience
+  const experience = extractExperience(sections['experience'] || '');
+
+  // Education
+  const education = extractEducation(sections['education'] || '');
+
+  // Summary
+  const summary = sections['summary'].replace(name, '').replace(email, '').replace(phone, '').replace(/\s+/g, ' ').trim().slice(0, 500);
 
   return {
     name,
     email,
     phone,
-    headline: '',
-    summary: '',
-    skills: extractedSkills,
-    experience: [],
-    education: [],
-    projects: extractedProjects,
-    rawText: cleanedText, // Returns the cleaned text for verification
+    headline: '', // Could extract first line under name
+    summary,
+    skills,
+    experience,
+    education,
+    projects,
+    rawText: cleanedText,
   };
 }
