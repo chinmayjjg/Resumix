@@ -88,7 +88,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         // Need to ensure type compatibility or assertion
-        (session.user as any).id = token.id as string;
+        (session.user as { id: string } & typeof session.user).id = token.id as string;
       }
       return session;
     },

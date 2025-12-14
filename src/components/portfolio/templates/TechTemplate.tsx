@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import AboutSection from '../AboutSection';
 import ExperienceSection from '../ExperienceSection';
 import EducationSection from '../EducationSection';
@@ -56,11 +57,14 @@ export default function TechTemplate({ portfolio }: { portfolio: any }) {
                                     <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#00ff41]"></div>
                                     <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-[#00ff41]"></div>
 
-                                    <img
+                                    <Image
                                         src={portfolio.userImage}
                                         alt="Profile"
-                                        className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 filter contrast-125"
+                                        fill
+                                        sizes="(max-width: 768px) 192px, 192px"
+                                        className="object-cover opacity-80 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 filter contrast-125"
                                         style={{ imageRendering: 'pixelated' }}
+                                        unoptimized
                                     />
                                     <div className="absolute top-0 left-0 w-full h-[2px] bg-[#00ff41] shadow-[0_0_10px_#00ff41] animate-[scan_2s_linear_infinite] opacity-50 pointer-events-none"></div>
                                 </div>

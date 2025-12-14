@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Image from 'next/image';
+
 import ThemePreviewGrid from '@/components/portfolio/ThemePreviewGrid';
 import { IPortfolio } from '@/models/Portfolio';
-import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, MoreVertical, LogOut, X } from 'lucide-react';
+import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X } from 'lucide-react';
 
 interface Experience {
     company: string;
@@ -67,6 +68,7 @@ export default function BuilderPage() {
 
     useEffect(() => {
         fetchPortfolio();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchPortfolio = async () => {
@@ -155,7 +157,7 @@ export default function BuilderPage() {
                 phone: parsedData.phone || prev.phone,
                 skills: parsedData.skills || [],
                 // Map projects if needed or keep existing if parser is weak
-                projects: parsedData.projects?.map((p: any) => ({
+                projects: parsedData.projects?.map((p: { title: string; summary: string }) => ({
                     name: p.title,
                     description: p.summary,
                     link: ''
@@ -330,7 +332,13 @@ export default function BuilderPage() {
                             title="Profile"
                         >
                             {data.userImage ? (
-                                <img src={data.userImage} alt="Profile" className="w-full h-full object-cover" />
+                                <Image
+                                    src={data.userImage}
+                                    alt="Profile"
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs font-bold">U</div>
                             )}
@@ -426,7 +434,15 @@ export default function BuilderPage() {
                                         />
                                         {data.userImage && (
                                             <div className="flex items-center gap-2">
-                                                <img src={data.userImage} alt="Profile" className="h-12 w-12 rounded-full object-cover" />
+                                                <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                                                    <Image
+                                                        src={data.userImage}
+                                                        alt="Profile"
+                                                        fill
+                                                        className="object-cover"
+                                                        unoptimized
+                                                    />
+                                                </div>
                                                 <button
                                                     onClick={handleDeleteImage}
                                                     className="text-red-500 hover:text-red-700 text-sm font-medium"

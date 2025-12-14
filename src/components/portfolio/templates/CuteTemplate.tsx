@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { IPortfolio } from '@/models/Portfolio';
 import { Mail, Phone, MapPin, ExternalLink, Heart } from 'lucide-react';
 
@@ -6,7 +7,8 @@ import { Mail, Phone, MapPin, ExternalLink, Heart } from 'lucide-react';
 // but referencing IPortfolio for structure.
 // In ProfessionalTemplate it uses 'any', we can try to be stricter but for now let's match the pattern to avoid errors.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function CuteTemplate({ portfolio }: { portfolio: any }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function CuteTemplate({ portfolio }: { portfolio: IPortfolio }) {
     const {
         name,
         headline,
@@ -45,10 +47,13 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
                         <div className="p-3 rounded-full border-4 border-dashed border-pink-300 bg-white shadow-[0_10px_40px_-10px_rgba(244,114,182,0.5)] transform hover:rotate-3 transition-transform duration-300 relative overflow-hidden">
                             <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden bg-pink-50 relative">
                                 {portfolio.userImage ? (
-                                    <img
+                                    <Image
                                         src={portfolio.userImage}
                                         alt="Profile"
-                                        className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                                        fill
+                                        sizes="(max-width: 768px) 160px, 192px"
+                                        className="object-cover transform transition-transform duration-500 group-hover:scale-110"
+                                        unoptimized
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
@@ -115,7 +120,7 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
                             <span className="text-pink-400">🏢</span> Work History
                         </h2>
                         <div className="space-y-8 relative before:absolute before:left-8 md:before:left-1/2 before:top-0 before:bottom-0 before:w-1 before:bg-pink-200 before:-ml-0.5">
-                            {experience.map((exp: any, index: number) => (
+                            {experience.map((exp, index) => (
                                 <div key={index} className="relative flex flex-col md:flex-row gap-8 items-center md:even:flex-row-reverse">
                                     <div className="hidden md:block w-1/2" />
 
@@ -146,7 +151,7 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
                             <span className="text-pink-400">🚀</span> My Projects
                         </h2>
                         <div className="grid md:grid-cols-2 gap-8">
-                            {projects.map((project: any, index: number) => (
+                            {projects.map((project, index) => (
                                 <div key={index} className="bg-white rounded-3xl overflow-hidden shadow-lg border-2 border-pink-100 hover:border-pink-300 transition-all hover:-translate-y-2">
                                     <div className="h-3 bg-gradient-to-r from-pink-300 to-rose-300" />
                                     <div className="p-8">
@@ -173,7 +178,7 @@ export default function CuteTemplate({ portfolio }: { portfolio: any }) {
                             <span className="text-pink-400">🎓</span> Education
                         </h2>
                         <div className="grid md:grid-cols-2 gap-6">
-                            {education.map((edu: any, index: number) => (
+                            {education.map((edu, index) => (
                                 <div key={index} className="bg-white/80 backdrop-blur p-6 rounded-2xl border border-pink-100 flex items-start gap-4 hover:bg-white transition-colors">
                                     <div className="p-3 bg-pink-100 rounded-xl text-pink-500">
                                         <Heart size={24} fill="currentColor" />

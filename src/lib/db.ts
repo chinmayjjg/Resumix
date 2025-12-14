@@ -5,7 +5,12 @@ const MONGODB_URI = process.env.MONGODB_URI!;
 if (!MONGODB_URI) throw new Error("Missing MONGODB_URI in .env");
 
 
-const cached = (global as any).mongoose || { conn: null, promise: null };
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: { conn: any; promise: any } | undefined;
+}
+
+const cached = global.mongoose || { conn: null, promise: null };
 
 export async function connectDB() {
   if (cached.conn) return cached.conn;

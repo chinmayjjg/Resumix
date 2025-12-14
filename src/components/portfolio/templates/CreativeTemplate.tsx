@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import AboutSection from '../AboutSection';
 import ExperienceSection from '../ExperienceSection';
 import EducationSection from '../EducationSection';
@@ -27,7 +28,7 @@ export default function CreativeTemplate({ portfolio }: { portfolio: any }) {
 
                 {portfolio.userImage && (
                     <div className="absolute top-1/2 right-10 md:right-32 -translate-y-1/2 w-[30vh] h-[30vh] md:w-[50vh] md:h-[50vh] z-0 opacity-80 mix-blend-multiply pointer-events-none grayscale contrast-125">
-                        <img src={portfolio.userImage} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                        <Image src={portfolio.userImage} alt="Profile" fill className="object-cover rounded-full" unoptimized />
                         <div className="absolute inset-0 bg-yellow-300 mix-blend-color opacity-50 rounded-full"></div>
                     </div>
                 )}

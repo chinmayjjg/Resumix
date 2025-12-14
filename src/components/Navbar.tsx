@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, LogOut, LayoutDashboard, User, ChevronDown, Sparkles } from "lucide-react";
@@ -79,10 +80,13 @@ export default function Navbar() {
                                     >
                                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
                                             {session.user?.image ? (
-                                                <img
+                                                <Image
                                                     src={session.user.image}
                                                     alt="User"
-                                                    className="w-full h-full rounded-full object-cover"
+                                                    fill
+                                                    sizes="32px"
+                                                    className="rounded-full object-cover"
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 userInitials

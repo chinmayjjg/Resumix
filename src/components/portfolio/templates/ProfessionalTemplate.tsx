@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import AboutSection from '../AboutSection';
 import ExperienceSection from '../ExperienceSection';
 import EducationSection from '../EducationSection';
@@ -24,10 +25,13 @@ export default function ProfessionalTemplate({ portfolio }: { portfolio: any }) 
                     {portfolio.userImage && (
                         <div className="mb-10 relative group">
                             <div className="absolute top-4 left-4 w-40 h-40 bg-blue-500/20 rounded-[2rem] -z-10 group-hover:top-2 group-hover:left-2 transition-all duration-300"></div>
-                            <img
+                            <Image
                                 src={portfolio.userImage}
                                 alt="Profile"
-                                className="w-40 h-40 rounded-[2rem] object-cover shadow-xl border border-white/10 filter brightness-90 group-hover:brightness-100 transition-all duration-300"
+                                fill
+                                sizes="(max-width: 768px) 160px, 160px"
+                                className="rounded-[2rem] object-cover shadow-xl border border-white/10 filter brightness-90 group-hover:brightness-100 transition-all duration-300"
+                                unoptimized
                             />
                         </div>
                     )}

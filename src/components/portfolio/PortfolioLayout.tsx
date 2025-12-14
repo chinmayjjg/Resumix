@@ -8,7 +8,9 @@ const TechTemplate = dynamic(() => import('./templates/TechTemplate'));
 const CuteTemplate = dynamic(() => import('./templates/CuteTemplate'));
 
 
-export default function PortfolioLayout({ portfolio }: { portfolio: any }) {
+import { IPortfolio } from '@/models/Portfolio';
+
+export default function PortfolioLayout({ portfolio }: { portfolio: IPortfolio }) {
   const template = portfolio.template || 'modern';
 
   switch (template) {
