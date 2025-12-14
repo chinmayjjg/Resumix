@@ -57,7 +57,7 @@ export default function ThemePreviewGrid({ portfolioData, onSelect, currentTempl
                    The container is fixed size, but the content thinks it's full screen.
                 */}
                             <div className="absolute top-0 left-0 w-[400%] h-[400%] origin-top-left transform scale-[0.25] pointer-events-none select-none">
-                                <Component portfolio={{ ...portfolioData, template: template.id }} />
+                                <Component portfolio={{ ...portfolioData, template: template.id as IPortfolio['template'] }} />
                             </div>
 
                             {/* Overlay to prevent interaction with iframe content but allow click to select */}
