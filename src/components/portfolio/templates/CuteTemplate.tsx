@@ -6,8 +6,7 @@ import { Mail, Phone, ExternalLink, Heart } from 'lucide-react';
 // Using 'any' for portfolio temporarily to avoid strict type checks if parent passes partial data not fully matching IPortfolio yet, 
 // but referencing IPortfolio for structure.
 // In ProfessionalTemplate it uses 'any', we can try to be stricter but for now let's match the pattern to avoid errors.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export default function CuteTemplate({ portfolio }: { portfolio: IPortfolio }) {
     const {
         name,
