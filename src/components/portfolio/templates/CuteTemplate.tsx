@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { IPortfolio } from '@/models/Portfolio';
-import { Mail, Phone, MapPin, ExternalLink, Heart } from 'lucide-react';
+import { Mail, Phone, ExternalLink, Heart } from 'lucide-react';
 
 // Using 'any' for portfolio temporarily to avoid strict type checks if parent passes partial data not fully matching IPortfolio yet, 
 // but referencing IPortfolio for structure.
