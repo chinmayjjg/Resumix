@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import AboutSection from '../AboutSection';
 import ExperienceSection from '../ExperienceSection';
 import EducationSection from '../EducationSection';
@@ -29,10 +30,13 @@ export default function ModernTemplate({ portfolio }: { portfolio: any }) {
                                 <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full p-1 bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shadow-2xl transform transition-transform duration-500 hover:rotate-6 hover:scale-105">
                                     <div className={`w-full h-full rounded-full p-1 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
                                         <div className="w-full h-full rounded-full overflow-hidden relative">
-                                            <img
+                                            <Image
                                                 src={portfolio.userImage}
                                                 alt="Profile"
-                                                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                                fill
+                                                sizes="(max-width: 768px) 192px, 256px"
+                                                className="object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                                unoptimized
                                             />
                                             {/* Shine effect */}
                                             <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>

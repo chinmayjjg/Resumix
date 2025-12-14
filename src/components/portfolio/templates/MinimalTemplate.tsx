@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import AboutSection from '../AboutSection';
 import ExperienceSection from '../ExperienceSection';
 import EducationSection from '../EducationSection';
@@ -20,12 +21,15 @@ export default function MinimalTemplate({ portfolio }: { portfolio: any }) {
                 {/* Minimal Header */}
                 <header className="mb-32 space-y-8 text-center flex flex-col items-center">
                     {portfolio.userImage && (
-                        <div className="relative group mb-8">
+                        <div className="relative group mb-8 w-32 h-32 md:w-40 md:h-40">
                             <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-5 rounded-full transition-opacity duration-500 scale-125"></div>
-                            <img
+                            <Image
                                 src={portfolio.userImage}
                                 alt="Profile"
-                                className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover grayscale brightness-110 contrast-125 hover:grayscale-0 transition-all duration-700 ease-out"
+                                fill
+                                sizes="(max-width: 768px) 128px, 160px"
+                                className="rounded-full object-cover grayscale brightness-110 contrast-125 hover:grayscale-0 transition-all duration-700 ease-out"
+                                unoptimized
                             />
                         </div>
                     )}
