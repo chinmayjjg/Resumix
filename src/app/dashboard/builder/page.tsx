@@ -306,7 +306,7 @@ export default function BuilderPage() {
 
                     {data.userId && (
                         <a
-                            href={`/ portfolio / ${data.userId} `}
+                            href={`/portfolio/${data.userId}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
