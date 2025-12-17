@@ -22,7 +22,7 @@ function cleanRawText(text: string): string {
   cleaned = cleaned.replace(/([a-z])([A-Z])/g, '$1 $2');
 
   // Normalize specific unicode dashes to standard hyphen
-  cleaned = cleaned.replace(/–|—/g, '-');
+  cleaned = cleaned.replace(/–|—|\u2212/g, '-');
 
   // We DO NOT remove dashes globally as it breaks date ranges (e.g. "2020 - 2021").
 
@@ -205,7 +205,7 @@ function extractProjects(text: string): { name: string; summary: string }[] {
   if (!text) return [];
 
   // 1. Heal specific broken lines in projects (e.g. "Title - K" \n "nowledge")
-  let healedText = text.replace(/([A-Z])\n\s*([a-z])/g, '$1$2');
+  let healedText = text.replace(/([A-Z])\s*\n\s*([a-z])/g, '$1$2');
 
   // 2. Fix camelCase again
   healedText = healedText.replace(/([a-z])([A-Z])/g, '$1 $2');
