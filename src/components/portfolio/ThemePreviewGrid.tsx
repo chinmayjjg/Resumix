@@ -33,14 +33,14 @@ export default function ThemePreviewGrid({ portfolioData, onSelect, currentTempl
                 return (
                     <div
                         key={template.id}
-                        className={`group relative rounded-xl border-4 overflow-hidden transition-all duration-300 ${isSelected ? 'border-blue-600 ring-4 ring-blue-600/20 scale-105 z-10' : 'border-transparent hover:border-slate-300 hover:shadow-2xl'}`}
+                        className={`group relative rounded-2xl border-4 overflow-hidden transition-all duration-300 ${isSelected ? 'border-primary ring-4 ring-primary/20 scale-105 z-10 shadow-xl' : 'border-transparent hover:border-slate-300 hover:shadow-2xl'}`}
                     >
                         {/* Header */}
-                        <div className="absolute top-0 left-0 right-0 z-20 p-3 bg-gradient-to-b from-black/80 to-transparent text-white flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="font-bold">{template.name}</span>
+                        <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-black/60 to-transparent text-white flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="font-bold font-serif tracking-wide">{template.name}</span>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onSelect(template.id); }}
-                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-full"
+                                className="bg-primary hover:bg-primary/90 text-white text-xs px-4 py-1.5 rounded-full shadow-md transition-colors"
                             >
                                 Select
                             </button>
@@ -48,7 +48,7 @@ export default function ThemePreviewGrid({ portfolioData, onSelect, currentTempl
 
                         {/* Preview Container - Scaled Down */}
                         <div
-                            className="relative w-full aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-slate-100 overflow-hidden cursor-pointer"
+                            className="relative w-full aspect-[9/16] md:aspect-square lg:aspect-[3/4] bg-slate-50 overflow-hidden cursor-pointer"
                             onClick={() => onSelect(template.id)}
                         >
                             {/* 
@@ -66,7 +66,7 @@ export default function ThemePreviewGrid({ portfolioData, onSelect, currentTempl
 
                         {/* Active Label */}
                         {isSelected && (
-                            <div className="absolute bottom-4 right-4 z-20 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            <div className="absolute bottom-4 right-4 z-20 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                                 Active
                             </div>
                         )}

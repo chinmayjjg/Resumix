@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, Settings, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, User, Settings, FileText, LogOut, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 
@@ -25,7 +25,7 @@ const sidebarItems = [
     {
         title: "Builder",
         href: "/dashboard/builder",
-        icon: FileText, // Reusing FileText or import a new one like PenTool
+        icon: FileText,
     },
     {
         title: "Settings",
@@ -38,9 +38,12 @@ export default function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="flex flex-col h-full bg-white border-r border-gray-200 w-64">
-            <div className="p-6">
-                <h2 className="text-2xl font-bold text-indigo-600">Dashboard</h2>
+        <div className="flex flex-col h-full bg-white/60 backdrop-blur-md border-r border-slate-200/60 w-64 shadow-[1px_0_20px_0px_rgba(0,0,0,0.02)]">
+            <div className="p-6 flex items-center gap-2">
+                <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                    <Sparkles className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-serif font-bold text-foreground">Resumix</h2>
             </div>
 
             <nav className="flex-1 px-4 space-y-2">
@@ -53,10 +56,10 @@ export default function Sidebar() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors",
+                                "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
                                 isActive
-                                    ? "bg-indigo-50 text-indigo-600"
-                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                                    : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
                             )}
                         >
                             <Icon className="w-5 h-5" />
@@ -66,10 +69,10 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-slate-100">
                 <button
                     onClick={() => signOut()}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 w-full transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted-foreground rounded-xl hover:bg-red-50 hover:text-red-600 w-full transition-colors"
                 >
                     <LogOut className="w-5 h-5" />
                     Sign Out

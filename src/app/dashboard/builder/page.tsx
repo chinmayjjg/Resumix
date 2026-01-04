@@ -248,28 +248,33 @@ export default function BuilderPage() {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 relative">
+        <div className="min-h-screen bg-background relative selection:bg-primary/20">
+            {/* Background Blobs */}
+            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-3xl"></div>
+            </div>
             {/* Custom Builder Navbar */}
-            <nav className="fixed w-full top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <nav className="fixed w-full top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/60 h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600"
+                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-muted-foreground hover:text-foreground"
                         title="Back to Dashboard"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gradient-to-tr from-blue-600 to-violet-600 rounded-lg text-white">
+                        <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
                             <Sparkles className="w-4 h-4" />
                         </div>
-                        <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
+                        <span className="text-lg font-serif font-bold text-foreground">
                             Builder
                         </span>
                     </div>
@@ -287,18 +292,18 @@ export default function BuilderPage() {
                         />
                         <label
                             htmlFor="reupload-cv-nav"
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg cursor-pointer transition-colors"
                         >
                             <Upload className="w-4 h-4" />
                             <span className="hidden sm:inline">Re-upload Resume</span>
                         </label>
                     </div>
 
-                    <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+                    <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
                     <button
                         onClick={() => setShowThemeModal(true)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-secondary-foreground/80 hover:text-secondary-foreground hover:bg-secondary/20 rounded-lg transition-colors"
                     >
                         <Palette className="w-4 h-4" />
                         <span className="hidden sm:inline">Theme</span>
@@ -309,7 +314,7 @@ export default function BuilderPage() {
                             href={`/portfolio/${data.userId}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-slate-100 rounded-lg transition-colors"
                         >
                             <Eye className="w-4 h-4" />
                             <span className="hidden sm:inline">View Live</span>
@@ -319,16 +324,16 @@ export default function BuilderPage() {
                     <button
                         onClick={savePortfolio}
                         disabled={saving}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm transition-all text-sm"
+                        className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg transition-all text-sm"
                     >
                         <Save className="w-4 h-4" />
                         <span>{saving ? 'Saving...' : 'Save'}</span>
                     </button>
 
-                    <div className="ml-2 pl-2 border-l border-gray-200">
+                    <div className="ml-2 pl-2 border-l border-slate-200">
                         <button
                             onClick={() => router.push('/dashboard/profile')}
-                            className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all"
+                            className="relative w-9 h-9 rounded-full bg-slate-100 overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all border border-slate-200"
                             title="Profile"
                         >
                             {data.userImage ? (
@@ -340,7 +345,7 @@ export default function BuilderPage() {
                                     unoptimized
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs font-bold">U</div>
+                                <div className="w-full h-full flex items-center justify-center text-primary text-xs font-bold font-serif">U</div>
                             )}
                         </button>
                     </div>
@@ -349,15 +354,15 @@ export default function BuilderPage() {
 
             {/* Theme Selection Modal */}
             {showThemeModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-6 relative animate-in fade-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-8 relative shadow-2xl">
                         <button
                             onClick={() => setShowThemeModal(false)}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-black z-50 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+                            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-50 bg-slate-100 rounded-full p-2 hover:bg-slate-200 transition-colors"
                         >
                             <X className="w-6 h-6" />
                         </button>
-                        <h2 className="text-2xl font-bold mb-6 text-center">Switch Theme</h2>
+                        <h2 className="text-3xl font-serif font-bold mb-8 text-center text-foreground">Choose Your Style</h2>
                         <ThemePreviewGrid
                             portfolioData={data as unknown as Partial<IPortfolio>}
                             onSelect={handleThemeSwitch}
@@ -367,85 +372,96 @@ export default function BuilderPage() {
                 </div>
             )}
 
-            <div className="max-w-4xl mx-auto pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-8">
+            <div className="max-w-4xl mx-auto pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 overflow-hidden">
+                    <div className="p-8 sm:p-10">
                         {/* Old Header Removed - replaced by fixed navbar */}
 
-                        <div className="space-y-8">
+                        <div className="space-y-10">
                             {/* Personal Info */}
                             <section>
-                                <h2 className="text-xl font-bold text-gray-800 border-b pb-4 mb-6">Personal Information</h2>
+                                <h2 className="text-xl font-serif font-bold text-foreground border-b border-slate-200/60 pb-4 mb-6 flex items-center gap-2">
+                                    <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+                                    Personal Information
+                                </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Full Name</label>
                                         <input
                                             type="text"
                                             value={data.name || ''}
                                             onChange={e => handleChange('name', e.target.value)}
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all font-serif"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
                                         <input
                                             type="email"
                                             value={data.email || ''}
                                             onChange={e => handleChange('email', e.target.value)}
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Phone</label>
                                         <input
                                             type="text"
                                             value={data.phone || ''}
                                             onChange={e => handleChange('phone', e.target.value)}
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Headline</label>
                                         <input
                                             type="text"
                                             value={data.headline || ''}
                                             onChange={e => handleChange('headline', e.target.value)}
                                             placeholder="e.g. Full Stack Developer"
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                         />
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Summary</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Summary</label>
                                         <textarea
                                             value={data.summary || ''}
                                             onChange={e => handleChange('summary', e.target.value)}
                                             rows={3}
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                         />
                                     </div>
                                     {/* Profile Picture Upload */}
-                                    <div className="md:col-span-2 flex items-center space-x-4">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                            className="p-2 border rounded-md"
-                                        />
+                                    <div className="md:col-span-2 flex items-center space-x-6 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                                        <div>
+                                            <label className="block text-sm font-medium text-muted-foreground mb-2">Profile Picture</label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageUpload}
+                                                className="block w-full text-sm text-slate-500
+                                                    file:mr-4 file:py-2 file:px-4
+                                                    file:rounded-full file:border-0
+                                                    file:text-sm file:font-semibold
+                                                    file:bg-primary/10 file:text-primary
+                                                    hover:file:bg-primary/20
+                                                    transition-all"
+                                            />
+                                        </div>
                                         {data.userImage && (
-                                            <div className="flex items-center gap-2">
-                                                <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 p-0.5">
                                                     <Image
                                                         src={data.userImage}
                                                         alt="Profile"
                                                         fill
-                                                        className="object-cover"
+                                                        className="object-cover rounded-full"
                                                         unoptimized
                                                     />
                                                 </div>
                                                 <button
                                                     onClick={handleDeleteImage}
-                                                    className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                                    className="text-destructive hover:text-red-700 text-sm font-medium px-3 py-1 rounded-full hover:bg-red-50 transition-colors"
                                                     type="button"
                                                 >
                                                     Remove
@@ -458,14 +474,17 @@ export default function BuilderPage() {
 
                             {/* Skills */}
                             <section>
-                                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Skills</h2>
+                                <h2 className="text-xl font-serif font-bold mb-4 text-foreground border-b border-slate-200/60 pb-2 flex items-center gap-2">
+                                    <span className="w-1.5 h-6 bg-secondary rounded-full"></span>
+                                    Skills
+                                </h2>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Skills (comma separated)</label>
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Skills (comma separated)</label>
                                     <textarea
                                         value={data.skills?.join(', ') || ''}
                                         onChange={handleSkillsChange}
                                         rows={3}
-                                        className="w-full p-2 border rounded-md"
+                                        className="w-full p-2.5 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all font-sans"
                                         placeholder="React, Node.js, TypeScript..."
                                     />
                                 </div>
@@ -473,144 +492,162 @@ export default function BuilderPage() {
 
                             {/* Experience */}
                             <section>
-                                <div className="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h2 className="text-xl font-semibold text-gray-800">Experience</h2>
-                                    <button onClick={() => addItem('experience')} className="text-blue-600 hover:text-blue-800 text-sm font-medium">+ Add Experience</button>
+                                <div className="flex justify-between items-center mb-6 border-b border-slate-200/60 pb-2">
+                                    <h2 className="text-xl font-serif font-bold text-foreground flex items-center gap-2">
+                                        <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+                                        Experience
+                                    </h2>
+                                    <button onClick={() => addItem('experience')} className="text-primary hover:text-primary/80 text-sm font-medium hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+                                        + Add Experience
+                                    </button>
                                 </div>
                                 <div className="space-y-6">
                                     {data.experience?.map((exp, idx) => (
-                                        <div key={idx} className="p-4 bg-gray-50 border rounded-lg relative">
+                                        <div key={idx} className="p-6 bg-white/50 border border-slate-200 rounded-xl relative hover:shadow-sm transition-shadow group">
                                             <button
                                                 onClick={() => removeItem('experience', idx)}
-                                                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                                className="absolute top-4 right-4 text-slate-400 hover:text-destructive p-1 rounded-full hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Remove Item"
                                             >
-                                                Remove
+                                                <X className="w-4 h-4" />
                                             </button>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <input
                                                     placeholder="Company"
                                                     value={exp.company}
                                                     onChange={e => handleArrayChange('experience', idx, 'company', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="Position"
                                                     value={exp.position}
                                                     onChange={e => handleArrayChange('experience', idx, 'position', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="Start Date"
                                                     value={exp.startDate}
                                                     onChange={e => handleArrayChange('experience', idx, 'startDate', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="End Date"
                                                     value={exp.endDate}
                                                     onChange={e => handleArrayChange('experience', idx, 'endDate', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <textarea
                                                     placeholder="Description"
                                                     value={exp.description}
                                                     onChange={e => handleArrayChange('experience', idx, 'description', e.target.value)}
-                                                    className="md:col-span-2 p-2 border rounded-md"
+                                                    className="md:col-span-2 p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                     rows={3}
                                                 />
                                             </div>
                                         </div>
                                     ))}
-                                    {data.experience?.length === 0 && <p className="text-gray-500 italic">No experience added yet.</p>}
+                                    {data.experience?.length === 0 && <p className="text-muted-foreground italic text-center py-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">No experience added yet.</p>}
                                 </div>
                             </section>
 
                             {/* Projects */}
                             <section>
-                                <div className="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h2 className="text-xl font-semibold text-gray-800">Projects</h2>
-                                    <button onClick={() => addItem('projects')} className="text-blue-600 hover:text-blue-800 text-sm font-medium">+ Add Project</button>
+                                <div className="flex justify-between items-center mb-6 border-b border-slate-200/60 pb-2">
+                                    <h2 className="text-xl font-serif font-bold text-foreground flex items-center gap-2">
+                                        <span className="w-1.5 h-6 bg-secondary rounded-full"></span>
+                                        Projects
+                                    </h2>
+                                    <button onClick={() => addItem('projects')} className="text-primary hover:text-primary/80 text-sm font-medium hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+                                        + Add Project
+                                    </button>
                                 </div>
                                 <div className="space-y-6">
                                     {data.projects?.map((proj, idx) => (
-                                        <div key={idx} className="p-4 bg-gray-50 border rounded-lg relative">
+                                        <div key={idx} className="p-6 bg-white/50 border border-slate-200 rounded-xl relative hover:shadow-sm transition-shadow group">
                                             <button
                                                 onClick={() => removeItem('projects', idx)}
-                                                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                                className="absolute top-4 right-4 text-slate-400 hover:text-destructive p-1 rounded-full hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Remove Item"
                                             >
-                                                Remove
+                                                <X className="w-4 h-4" />
                                             </button>
                                             <div className="grid grid-cols-1 gap-4">
                                                 <input
                                                     placeholder="Project Name"
                                                     value={proj.name}
                                                     onChange={e => handleArrayChange('projects', idx, 'name', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="Link (Optional)"
                                                     value={proj.link}
                                                     onChange={e => handleArrayChange('projects', idx, 'link', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <textarea
                                                     placeholder="Description"
                                                     value={proj.description}
                                                     onChange={e => handleArrayChange('projects', idx, 'description', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                     rows={3}
                                                 />
                                             </div>
                                         </div>
                                     ))}
-                                    {data.projects?.length === 0 && <p className="text-gray-500 italic">No projects added yet.</p>}
+                                    {data.projects?.length === 0 && <p className="text-muted-foreground italic text-center py-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">No projects added yet.</p>}
                                 </div>
                             </section>
 
                             {/* Education */}
                             <section>
-                                <div className="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h2 className="text-xl font-semibold text-gray-800">Education</h2>
-                                    <button onClick={() => addItem('education')} className="text-blue-600 hover:text-blue-800 text-sm font-medium">+ Add Education</button>
+                                <div className="flex justify-between items-center mb-6 border-b border-slate-200/60 pb-2">
+                                    <h2 className="text-xl font-serif font-bold text-foreground flex items-center gap-2">
+                                        <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+                                        Education
+                                    </h2>
+                                    <button onClick={() => addItem('education')} className="text-primary hover:text-primary/80 text-sm font-medium hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+                                        + Add Education
+                                    </button>
                                 </div>
                                 <div className="space-y-6">
                                     {data.education?.map((edu, idx) => (
-                                        <div key={idx} className="p-4 bg-gray-50 border rounded-lg relative">
+                                        <div key={idx} className="p-6 bg-white/50 border border-slate-200 rounded-xl relative hover:shadow-sm transition-shadow group">
                                             <button
                                                 onClick={() => removeItem('education', idx)}
-                                                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                                className="absolute top-4 right-4 text-slate-400 hover:text-destructive p-1 rounded-full hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Remove Item"
                                             >
-                                                Remove
+                                                <X className="w-4 h-4" />
                                             </button>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <input
                                                     placeholder="Institution"
                                                     value={edu.institution}
                                                     onChange={e => handleArrayChange('education', idx, 'institution', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="Degree"
                                                     value={edu.degree}
                                                     onChange={e => handleArrayChange('education', idx, 'degree', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="Start Year"
                                                     value={edu.startYear}
                                                     onChange={e => handleArrayChange('education', idx, 'startYear', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                                 <input
                                                     placeholder="End Year"
                                                     value={edu.endYear}
                                                     onChange={e => handleArrayChange('education', idx, 'endYear', e.target.value)}
-                                                    className="p-2 border rounded-md"
+                                                    className="p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                                                 />
                                             </div>
                                         </div>
                                     ))}
-                                    {data.education?.length === 0 && <p className="text-gray-500 italic">No education added yet.</p>}
+                                    {data.education?.length === 0 && <p className="text-muted-foreground italic text-center py-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">No education added yet.</p>}
                                 </div>
                             </section>
                         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { Sparkles } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -38,60 +39,72 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-background relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl translate-y-[-50%] translate-x-[-50%] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/30 rounded-full blur-3xl translate-y-[50%] translate-x-[50%] pointer-events-none"></div>
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white p-6 rounded-xl shadow-md space-y-4"
+        className="relative w-full max-w-sm bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-white/40 space-y-6"
       >
-        <h1 className="text-xl font-semibold text-center">Create Account</h1>
+        <div className="text-center space-y-2">
+          <div className="inline-flex p-2 bg-primary/10 rounded-lg text-primary mb-2">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h1 className="text-3xl font-serif font-medium text-foreground">Create Account</h1>
+          <p className="text-muted-foreground text-sm">Join Resumix and start building</p>
+        </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-destructive text-sm bg-destructive/10 p-2 rounded text-center">{error}</p>}
 
-        <input
-          type="text"
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full p-2 border rounded"
-          required
-        />
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            required
+          />
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="w-full p-2 border rounded"
-          required
-        />
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="w-full p-2 border rounded"
-          required
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            required
+          />
+        </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+          className="w-full bg-primary text-primary-foreground py-3 rounded-full font-medium hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
         >
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
         <div className="flex items-center my-4">
-          <div className="flex-grow border-t border-gray-300"></div>
-          <span className="flex-shrink-0 mx-4 text-gray-500 text-sm">Or</span>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex-grow border-t border-slate-200"></div>
+          <span className="flex-shrink-0 mx-4 text-muted-foreground text-sm">Or</span>
+          <div className="flex-grow border-t border-slate-200"></div>
         </div>
 
         <button
           type="button"
           onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-          className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-foreground py-3 rounded-full hover:bg-slate-50 transition-colors font-medium"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -114,9 +127,9 @@ export default function SignupPage() {
           Continue with Google
         </button>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 underline">
+          <a href="/login" className="text-primary hover:underline font-medium">
             Log in
           </a>
         </p>

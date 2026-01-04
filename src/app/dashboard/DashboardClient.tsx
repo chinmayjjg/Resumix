@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ui/ThemeToggle";
+import { Sparkles, ExternalLink, Copy, Check } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function DashboardClient({ portfolio, session }: { portfolio: any, session: any }) {
@@ -10,51 +11,54 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
 
     return (
         <div className={theme}>
-            <div className="min-h-screen bg-background text-foreground p-6">
-                <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Dashboard</h1>
+            <div className="min-h-screen bg-background text-foreground p-8">
+                <header className="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 className="text-3xl font-serif font-bold text-foreground">Dashboard</h1>
+                        <p className="text-muted-foreground mt-1">Welcome back, {session.user.name}</p>
+                    </div>
                     <div className="flex items-center gap-4">
                         <Link
                             href="/dashboard/profile"
-                            className="text-gray-600 hover:text-gray-900 font-medium"
+                            className="text-muted-foreground hover:text-primary font-medium transition-colors"
                         >
                             Profile
                         </Link>
                         <Link
                             href="/dashboard/builder"
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                            className="bg-primary text-primary-foreground px-5 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-md hover:translate-y-[-1px] flex items-center gap-2"
                         >
+                            <Sparkles className="w-4 h-4" />
                             Open Builder
                         </Link>
-                        <ThemeToggle currentTheme={theme} userId={session.user.id} onToggle={setTheme} />
+                        <div className="bg-white/50 p-1 rounded-full border border-slate-200">
+                            <ThemeToggle currentTheme={theme} userId={session.user.id} onToggle={setTheme} />
+                        </div>
                     </div>
                 </header>
 
-                <section className="space-y-6">
+                <section className="space-y-8">
                     {/* View My Portfolio Section */}
                     {portfolio && (
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-                            <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="relative overflow-hidden bg-white/60 backdrop-blur-md p-8 rounded-2xl border border-white/60 shadow-sm">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 -z-10"></div>
+
+                            <div className="flex items-center justify-between flex-wrap gap-6">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
+                                    <h2 className="text-2xl font-serif font-semibold text-foreground mb-2 flex items-center gap-2">
+                                        <Sparkles className="w-6 h-6 text-primary" />
                                         Your Live Portfolio
                                     </h2>
-                                    <p className="text-blue-700 dark:text-blue-300 text-sm">Share this link with recruiters and on your resume</p>
+                                    <p className="text-muted-foreground">Share this link with recruiters and on your resume</p>
                                 </div>
-                                <div className="flex gap-3">
+                                <div className="flex gap-4">
                                     <Link
                                         href={`/portfolio/${session.user.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+                                        className="bg-primary text-primary-foreground px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors font-medium shadow-md hover:shadow-lg flex items-center gap-2"
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
+                                        <ExternalLink className="w-5 h-5" />
                                         View Portfolio
                                     </Link>
                                     <button
@@ -63,68 +67,81 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                                             navigator.clipboard.writeText(url);
                                             alert('Portfolio link copied to clipboard!');
                                         }}
-                                        className="bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 px-6 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium border-2 border-blue-300 dark:border-blue-700 flex items-center gap-2"
+                                        className="bg-white text-foreground px-6 py-3 rounded-xl hover:bg-slate-50 transition-colors font-medium border border-slate-200 shadow-sm flex items-center gap-2"
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                        </svg>
+                                        <Copy className="w-4 h-4 text-muted-foreground" />
                                         Copy Link
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded border border-blue-200 dark:border-blue-800">
-                                <p className="text-sm font-mono text-gray-600 dark:text-gray-300 break-all">
+                            <div className="mt-6 p-4 bg-slate-50/50 rounded-xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-primary/20 transition-colors"
+                                onClick={() => {
+                                    const url = `${window.location.origin}/portfolio/${session.user.id}`;
+                                    navigator.clipboard.writeText(url);
+                                }}
+                            >
+                                <p className="text-sm font-mono text-muted-foreground break-all">
                                     {typeof window !== 'undefined' ? `${window.location.origin}/portfolio/${session.user.id}` : `/portfolio/${session.user.id}`}
                                 </p>
+                                <Copy className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
                             </div>
                         </div>
                     )}
 
                     {!portfolio && (
-                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                            <p className="text-lg text-gray-600 mb-4">No portfolio data yet.</p>
+                        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/30">
+                            <p className="text-lg text-muted-foreground mb-6">No portfolio data yet.</p>
                             <Link
                                 href="/dashboard/upload"
-                                className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors inline-block"
+                                className="bg-primary text-primary-foreground px-8 py-4 rounded-full hover:bg-primary/90 transition-all shadow-lg inline-flex items-center gap-2 font-medium"
                             >
+                                <Sparkles className="w-5 h-5" />
                                 Upload Resume to Start
                             </Link>
                         </div>
                     )}
 
                     {portfolio && (
-                        <div className="p-6 border rounded-lg shadow-sm bg-card text-card-foreground">
-                            <div className="flex justify-between items-start mb-4">
-                                <h2 className="text-2xl font-semibold">Portfolio Preview</h2>
-                                <span className="text-sm text-muted-foreground bg-secondary px-2 py-1 rounded">
+                        <div className="p-8 border border-white/60 bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm">
+                            <div className="flex justify-between items-start mb-6">
+                                <h2 className="text-xl font-serif font-semibold text-foreground">Portfolio Preview</h2>
+                                <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-secondary">
                                     Theme: {theme}
                                 </span>
                             </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="font-medium text-gray-500">About</h3>
-                                    <p className="mt-1">{portfolio.summary || portfolio.about || "No summary added yet."}</p>
+                            <div className="grid md:grid-cols-3 gap-8">
+                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                    <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">About</h3>
+                                    <p className="text-foreground line-clamp-3 leading-relaxed text-sm">
+                                        {portfolio.summary || portfolio.about || "No summary added yet."}
+                                    </p>
                                 </div>
 
-                                <div>
-                                    <h3 className="font-medium text-gray-500">Skills</h3>
-                                    <div className="flex flex-wrap gap-2 mt-1">
+                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                    <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">Skills</h3>
+                                    <div className="flex flex-wrap gap-2">
                                         {portfolio.skills?.length > 0 ? (
-                                            portfolio.skills.map((skill: string, i: number) => (
-                                                <span key={i} className="bg-gray-100 px-2 py-1 rounded text-sm border">
+                                            portfolio.skills.slice(0, 8).map((skill: string, i: number) => (
+                                                <span key={i} className="bg-secondary/30 text-secondary-foreground px-2 py-1 rounded-md text-xs font-medium border border-secondary/20">
                                                     {skill}
                                                 </span>
                                             ))
                                         ) : (
-                                            <p className="text-gray-400 italic">No skills listed</p>
+                                            <p className="text-slate-400 italic text-sm">No skills listed</p>
+                                        )}
+                                        {portfolio.skills?.length > 8 && (
+                                            <span className="text-xs text-muted-foreground py-1 px-1">+{portfolio.skills.length - 8} more</span>
                                         )}
                                     </div>
                                 </div>
 
-                                <div>
-                                    <h3 className="font-medium text-gray-500">Projects</h3>
-                                    <p className="mt-1">{portfolio.projects?.length || 0} projects added</p>
+                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                    <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">Projects</h3>
+                                    <div className="flex items-center justify-center h-20 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                        <p className="font-serif text-2xl text-primary">{portfolio.projects?.length || 0}</p>
+                                        <p className="ml-2 text-sm text-muted-foreground">projects added</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

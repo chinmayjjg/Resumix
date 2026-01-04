@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 export default function ThemeToggle({ currentTheme, userId, onToggle }: { currentTheme: string; userId: string; onToggle?: (theme: string) => void }) {
   const [theme, setTheme] = useState(currentTheme);
@@ -19,9 +20,10 @@ export default function ThemeToggle({ currentTheme, userId, onToggle }: { curren
   return (
     <button
       onClick={handleToggle}
-      className="p-2 border rounded"
+      className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-muted-foreground hover:text-primary"
+      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      Theme: {theme}
+      {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
     </button>
   );
 }

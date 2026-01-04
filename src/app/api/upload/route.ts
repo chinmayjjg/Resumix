@@ -6,14 +6,10 @@ import { connectDB } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { Buffer } from 'buffer';
-
-// Import the User model to look up the correct MongoDB ObjectId
 import User from '@/models/User';
-
-// Using the pure-JS parser to avoid native dependencies like 'canvas'
 import Pdfparser from 'pdf2json';
 
-// --- Types ---
+
 interface FileLike {
     arrayBuffer: () => Promise<ArrayBuffer>;
     size?: number;
@@ -29,20 +25,19 @@ interface ParsedResumeData {
     rawText: string;
 }
 
-// --- Helpers ---
+
 function isFileLike(x: unknown): x is FileLike {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     return !!x && typeof (x as any).arrayBuffer === 'function';
 }
 
-// --- PDF Parse Helper (Uses pdf2json) ---
+
 async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
-    // pdf2json requires the data as a Buffer
+    
     const pdfBuffer = Buffer.from(buffer);
 
     return new Promise((resolve, reject) => {
-        // pdf2json is initialised with null/dummy path when parsing a buffer
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
         const pdfParser = new (Pdfparser as any)(null, 1);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,12 +58,12 @@ async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text
                         // Decode and join the text chunks, adding a space separator.
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const pageText = page.Texts.map((textBlock: any) => {
-                            // The raw text is usually found in R[0].T and is URI encoded
+                            
                             const rawText = textBlock.R?.[0]?.T;
 
                             if (!rawText) return '';
 
-                            // Safely attempt to decode the URI component, catching malformed URIs.
+                           
                             try {
                                 return decodeURIComponent(rawText);
                             } catch (e) {
@@ -86,13 +81,13 @@ async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text
             resolve({ text: fullText });
         });
 
-        // Start parsing the buffer
+       
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pdfParser as any).parseBuffer(pdfBuffer);
     });
 }
 
-// --- Route ---
+
 export async function POST(req: Request): Promise<NextResponse> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,21 +118,19 @@ export async function POST(req: Request): Promise<NextResponse> {
 
         const text: string = data?.text ?? '';
 
-        // --- 1. Email Extraction ---
+        //  Email Extraction 
         const email = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i)?.[0] ?? '';
 
-        // --- 2. Phone Extraction (Confirmed Working) ---
-        // This regex looks for common global phone formats: 
-        // optional country code (+XX), optional parentheses, minimum 7 digits
+        
         const phoneMatch = text.match(/(\+?\s*\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}/);
-        // Find the longest match and clean it up, prioritizing the explicit phone number
+        //  phone number
         const phone = phoneMatch ? phoneMatch.find(p => (p.replace(/[\s.-]/g, '').length >= 7 && p.includes('+'))) ?? phoneMatch[0] : '';
         const cleanedPhone = phone.replace(/[^\d+]/g, '').trim();
 
 
-        // --- 3. Skills Extraction (Major Revision for better isolation and filtering) ---
-        // 1. Attempt to isolate the skills block using major headers as delimiters.
-        // Finds text between a Skills header and the next major section (like Education or Projects).
+        //  Skills Extraction 
+        
+        // Finds text between a Skills header and the next major section.
         const skillBlockMatch = text.match(/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*([^]+?)(?=(EDUCATION|PROJECTS|EXPERIENCE|OBJECTIVE))/i);
         let skillSectionText = '';
 
@@ -167,7 +160,7 @@ export async function POST(req: Request): Promise<NextResponse> {
             }
         }
 
-        // 2. Pre-clean the extracted block to normalize formatting and replace categories with commas
+        
         const cleanedBlock = skillSectionText
             .replace(/\s+/g, ' ') // Collapse multiple spaces
             .replace(/:\s*/g, ', ') // Replace colons with commas
@@ -187,7 +180,7 @@ export async function POST(req: Request): Promise<NextResponse> {
             })
             .slice(0, 15); // Keep up to 15 best candidates
 
-        // --- 4. Project Extraction (REFINED LOGIC) ---
+        //  Project Extraction 
         const projects: { title: string; summary: string }[] = [];
 
         // Find the block of text between the PROJECTS header and the next major header (e.g., ACHIEVEMENTS)
@@ -200,19 +193,17 @@ export async function POST(req: Request): Promise<NextResponse> {
             const EXCLUDED_START_WORDS =
                 '(?:Developed|Built|Implemented|Added|Features|Created|BuiltasecurebackendwithNode\\.js|Implementedreal)';
 
-            // Pattern for splitting: Look for a capitalized word followed by a dash, 
-            // but exclude the common descriptive verbs using a negative lookahead (?!...)
+            
             const PROJECT_TITLE_SPLIT_PATTERN =
                 new RegExp(`(?!${EXCLUDED_START_WORDS})([A-Z][a-zA-Z]+[–-][^—\n]+?)`, 'g');
 
             // Split the text, capturing the delimiters (titles)
             const parts = projectText.split(PROJECT_TITLE_SPLIT_PATTERN).filter(p => p.trim() !== '');
 
-            // If index 0 is content before the first title, titles start at index 1.
-            // We only care about pairs starting from the first title.
+            
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i].trim();
-                // Check if this part looks like a potential Title
+                
                 if (part.match(/[A-Z][a-zA-Z]+[–-][^—\n]+?/)) {
                     const rawTitle = part;
                     const rawContent = (parts[i + 1] || '').trim(); // Content is the next item
@@ -248,22 +239,22 @@ export async function POST(req: Request): Promise<NextResponse> {
 
         const parsedData: ParsedResumeData = {
             email,
-            phone: cleanedPhone, // Use the cleaned phone number
+            phone: cleanedPhone, 
             skills,
-            projects, // Add the new projects array
+            projects, 
             rawText: text.slice(0, 2000)
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sessUser = (session as any).user ?? {};
-        // Extract the primary user identifier (email is guaranteed by your User schema)
+        
         const userIdentifier = sessUser.email || sessUser.id || sessUser.sub;
 
         if (!userIdentifier) {
             return NextResponse.json({ error: 'User session missing required identifier (email/ID).' }, { status: 401 });
         }
 
-        // STEP 1: Find the User document using the session email to get the correct MongoDB ObjectId
+       
         const userDoc = await User.findOne({ email: userIdentifier });
 
         if (!userDoc) {
@@ -272,10 +263,10 @@ export async function POST(req: Request): Promise<NextResponse> {
             return NextResponse.json({ error: 'User record not found in database. Cannot associate resume.' }, { status: 404 });
         }
 
-        // STEP 2: Use the Mongoose ObjectId (_id) from the found user document
+        
         const userId = userDoc._id;
 
-        // STEP 3: Create the Resume document with the valid ObjectId
+        
         await Resume.create({ userId, parsedData });
 
         return NextResponse.json({ success: true, parsedData }, { status: 201 });
