@@ -27,17 +27,17 @@ interface ParsedResumeData {
 
 
 function isFileLike(x: unknown): x is FileLike {
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return !!x && typeof (x as any).arrayBuffer === 'function';
 }
 
 
 async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
-    
+
     const pdfBuffer = Buffer.from(buffer);
 
     return new Promise((resolve, reject) => {
-       
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pdfParser = new (Pdfparser as any)(null, 1);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,12 +58,12 @@ async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text
                         // Decode and join the text chunks, adding a space separator.
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const pageText = page.Texts.map((textBlock: any) => {
-                            
+
                             const rawText = textBlock.R?.[0]?.T;
 
                             if (!rawText) return '';
 
-                           
+
                             try {
                                 return decodeURIComponent(rawText);
                             } catch (e) {
@@ -81,7 +81,7 @@ async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text
             resolve({ text: fullText });
         });
 
-       
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pdfParser as any).parseBuffer(pdfBuffer);
     });
@@ -121,7 +121,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         //  Email Extraction 
         const email = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i)?.[0] ?? '';
 
-        
+
         const phoneMatch = text.match(/(\+?\s*\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}/);
         //  phone number
         const phone = phoneMatch ? phoneMatch.find(p => (p.replace(/[\s.-]/g, '').length >= 7 && p.includes('+'))) ?? phoneMatch[0] : '';
@@ -129,7 +129,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
 
         //  Skills Extraction 
-        
+
         // Finds text between a Skills header and the next major section.
         const skillBlockMatch = text.match(/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*([^]+?)(?=(EDUCATION|PROJECTS|EXPERIENCE|OBJECTIVE))/i);
         let skillSectionText = '';
@@ -160,7 +160,7 @@ export async function POST(req: Request): Promise<NextResponse> {
             }
         }
 
-        
+
         const cleanedBlock = skillSectionText
             .replace(/\s+/g, ' ') // Collapse multiple spaces
             .replace(/:\s*/g, ', ') // Replace colons with commas
@@ -193,17 +193,17 @@ export async function POST(req: Request): Promise<NextResponse> {
             const EXCLUDED_START_WORDS =
                 '(?:Developed|Built|Implemented|Added|Features|Created|BuiltasecurebackendwithNode\\.js|Implementedreal)';
 
-            
+
             const PROJECT_TITLE_SPLIT_PATTERN =
                 new RegExp(`(?!${EXCLUDED_START_WORDS})([A-Z][a-zA-Z]+[–-][^—\n]+?)`, 'g');
 
             // Split the text, capturing the delimiters (titles)
             const parts = projectText.split(PROJECT_TITLE_SPLIT_PATTERN).filter(p => p.trim() !== '');
 
-            
+
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i].trim();
-                
+
                 if (part.match(/[A-Z][a-zA-Z]+[–-][^—\n]+?/)) {
                     const rawTitle = part;
                     const rawContent = (parts[i + 1] || '').trim(); // Content is the next item
@@ -239,22 +239,22 @@ export async function POST(req: Request): Promise<NextResponse> {
 
         const parsedData: ParsedResumeData = {
             email,
-            phone: cleanedPhone, 
+            phone: cleanedPhone,
             skills,
-            projects, 
+            projects,
             rawText: text.slice(0, 2000)
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sessUser = (session as any).user ?? {};
-        
+
         const userIdentifier = sessUser.email || sessUser.id || sessUser.sub;
 
         if (!userIdentifier) {
             return NextResponse.json({ error: 'User session missing required identifier (email/ID).' }, { status: 401 });
         }
 
-       
+
         const userDoc = await User.findOne({ email: userIdentifier });
 
         if (!userDoc) {
@@ -263,10 +263,10 @@ export async function POST(req: Request): Promise<NextResponse> {
             return NextResponse.json({ error: 'User record not found in database. Cannot associate resume.' }, { status: 404 });
         }
 
-        
+
         const userId = userDoc._id;
 
-        
+
         await Resume.create({ userId, parsedData });
 
         return NextResponse.json({ success: true, parsedData }, { status: 201 });
