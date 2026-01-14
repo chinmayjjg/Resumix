@@ -97,7 +97,7 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50"
+            className="w-full bg-yellow-900 text-white py-3 rounded-lg font-bold hover:bg-yellow-800 disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Upload & Continue'}
           </button>
