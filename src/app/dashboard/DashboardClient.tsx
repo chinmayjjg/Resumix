@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ui/ThemeToggle";
-import { Sparkles, ExternalLink, Copy, Check } from 'lucide-react';
+import { Sparkles, ExternalLink, Copy } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function DashboardClient({ portfolio, session }: { portfolio: any, session: any }) {

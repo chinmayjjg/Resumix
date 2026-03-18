@@ -5,13 +5,14 @@ import PortfolioLayout from '@/components/portfolio/PortfolioLayout';
 
 export const revalidate = 0;
 
+type LeanPortfolio = Record<string, unknown> | null;
+
 export default async function PortfolioPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
 
   try {
     await connectDB();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawPortfolio = await Portfolio.findOne({ userId: username }).lean();
+    const rawPortfolio = await Portfolio.findOne({ userId: username }).lean<LeanPortfolio>();
 
     if (!rawPortfolio) return notFound();
 
