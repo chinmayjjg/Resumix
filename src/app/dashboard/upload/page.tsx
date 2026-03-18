@@ -32,15 +32,16 @@ export default function UploadPage() {
         name: parsedData.name || 'User',
         email: parsedData.email,
         phone: parsedData.phone,
+        headline: parsedData.headline || '',
+        summary: parsedData.summary || '',
         skills: parsedData.skills,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        projects: parsedData.projects?.map((p: any) => ({
+        projects: parsedData.projects?.map((p: { title: string; summary: string; link?: string }) => ({
           name: p.title,
           description: p.summary,
-          link: '' // Default empty link
+          link: p.link || ''
         })) || [],
-        experience: [], // Resume parser might not fill this yet
-        education: []
+        experience: parsedData.experience || [],
+        education: parsedData.education || []
       };
 
       setParsedPortfolio(portfolioData);

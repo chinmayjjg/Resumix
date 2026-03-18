@@ -155,14 +155,16 @@ export default function BuilderPage() {
                 name: parsedData.name || prev.name,
                 email: parsedData.email || prev.email,
                 phone: parsedData.phone || prev.phone,
+                headline: parsedData.headline || prev.headline,
+                summary: parsedData.summary || prev.summary,
                 skills: parsedData.skills || [],
-                // Map projects if needed or keep existing if parser is weak
-                projects: parsedData.projects?.map((p: { title: string; summary: string }) => ({
+                experience: parsedData.experience || [],
+                education: parsedData.education || [],
+                projects: parsedData.projects?.map((p: { title: string; summary: string; link?: string }) => ({
                     name: p.title,
                     description: p.summary,
-                    link: ''
+                    link: p.link || ''
                 })) || [],
-                // We keep the image and theme
             }));
 
             alert('Resume re-uploaded and data updated!');

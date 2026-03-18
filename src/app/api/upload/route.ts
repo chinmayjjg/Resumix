@@ -8,6 +8,8 @@ import { authOptions } from '@/lib/auth';
 import { Buffer } from 'buffer';
 import User from '@/models/User';
 import Pdfparser from 'pdf2json';
+import { transformResumeData, Pdf2JsonData } from '@/lib/transformResumeData';
+import { extractPortfolioWithGroq, isGroqConfigured } from '@/lib/groq';
 
 
 interface FileLike {
@@ -18,10 +20,26 @@ interface FileLike {
 }
 
 interface ParsedResumeData {
+    name: string;
     email: string;
     phone: string;
+    headline: string;
+    summary: string;
     skills: string[];
-    projects: { title: string; summary: string }[]; // New field for project extraction
+    experience: {
+        company: string;
+        position: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    }[];
+    education: {
+        institution: string;
+        degree: string;
+        startYear: string;
+        endYear: string;
+    }[];
+    projects: { title: string; summary: string; link: string }[];
     rawText: string;
 }
 
@@ -32,7 +50,7 @@ function isFileLike(x: unknown): x is FileLike {
 }
 
 
-async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text: string }> {
+async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<Pdf2JsonData> {
 
     const pdfBuffer = Buffer.from(buffer);
 
@@ -47,44 +65,59 @@ async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<{ text
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
-            let fullText = '';
-
-            // Iterate through pages and extract text blocks from pdf2json's internal structure
-            if (pdfData.Pages) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                pdfData.Pages.forEach((page: any) => {
-                    if (page.Texts) {
-                        // Decode and join the text chunks, adding a space separator.
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        const pageText = page.Texts.map((textBlock: any) => {
-
-                            const rawText = textBlock.R?.[0]?.T;
-
-                            if (!rawText) return '';
-
-
-                            try {
-                                return decodeURIComponent(rawText);
-                            } catch (e) {
-                                // If decoding fails (URI malformed), return the raw text after basic cleanup.
-                                console.warn('URI malformed, returning raw text or empty string:', rawText, e);
-                                // Basic cleanup attempt to remove remaining encoding signs
-                                return rawText.replace(/%[0-9a-fA-F]{2}/g, '');
-                            }
-                        }).join(' ');
-                        fullText += pageText + '\n';
-                    }
-                });
-            }
-
-            resolve({ text: fullText });
+        pdfParser.on("pdfParser_dataReady", (pdfData: Pdf2JsonData) => {
+            resolve(pdfData);
         });
 
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pdfParser as any).parseBuffer(pdfBuffer);
     });
+}
+
+function extractRawTextFromPdfData(rawData: Pdf2JsonData): string {
+    return rawData.Pages.flatMap((page) =>
+        page.Texts.map((text) => {
+            const rawToken = text.R?.[0]?.T;
+            if (!rawToken) return '';
+
+            try {
+                return decodeURIComponent(rawToken);
+            } catch {
+                return rawToken;
+            }
+        })
+    ).join('\n');
+}
+
+function mapLegacyExtraction(data: ReturnType<typeof transformResumeData>): ParsedResumeData {
+    return {
+        name: data.name || '',
+        email: data.email,
+        phone: data.phone,
+        headline: data.headline || '',
+        summary: data.summary || '',
+        skills: data.skills,
+        experience: data.experience.map((item) => ({
+            company: item.company,
+            position: item.role,
+            startDate: item.duration,
+            endDate: '',
+            description: item.description,
+        })),
+        education: data.education.map((item) => ({
+            institution: item.school,
+            degree: item.degree,
+            startYear: item.year,
+            endYear: '',
+        })),
+        projects: data.projects.map((project) => ({
+            title: project.title,
+            summary: project.summary,
+            link: '',
+        })),
+        rawText: data.rawText.slice(0, 4000),
+    };
 }
 
 
@@ -108,7 +141,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        let data;
+        let data: Pdf2JsonData;
         try {
             data = await parsePdfWithPdf2Json(buffer);
         } catch (err) {
@@ -116,134 +149,37 @@ export async function POST(req: Request): Promise<NextResponse> {
             return NextResponse.json({ error: 'Failed to process PDF file. The parser encountered an internal error.' }, { status: 500 });
         }
 
-        const text: string = data?.text ?? '';
+        const rawText = extractRawTextFromPdfData(data);
+        const legacyExtraction = transformResumeData(data);
 
-        //  Email Extraction 
-        const email = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/i)?.[0] ?? '';
+        let parsedData: ParsedResumeData;
 
-
-        const phoneMatch = text.match(/(\+?\s*\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}/);
-        //  phone number
-        const phone = phoneMatch ? phoneMatch.find(p => (p.replace(/[\s.-]/g, '').length >= 7 && p.includes('+'))) ?? phoneMatch[0] : '';
-        const cleanedPhone = phone.replace(/[^\d+]/g, '').trim();
-
-
-        //  Skills Extraction 
-
-        // Finds text between a Skills header and the next major section.
-        const skillBlockMatch = text.match(/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*([^]+?)(?=(EDUCATION|PROJECTS|EXPERIENCE|OBJECTIVE))/i);
-        let skillSectionText = '';
-
-        if (skillBlockMatch && skillBlockMatch[2]) {
-            // Use the content captured between the header and the next section.
-            skillSectionText = skillBlockMatch[2].trim();
+        if (isGroqConfigured()) {
+            try {
+                const groqExtraction = await extractPortfolioWithGroq(rawText);
+                parsedData = {
+                    name: groqExtraction.name,
+                    email: groqExtraction.email,
+                    phone: groqExtraction.phone,
+                    headline: groqExtraction.headline,
+                    summary: groqExtraction.summary,
+                    skills: groqExtraction.skills,
+                    experience: groqExtraction.experience,
+                    education: groqExtraction.education,
+                    projects: groqExtraction.projects.map((project) => ({
+                        title: project.name,
+                        summary: project.description,
+                        link: project.link || '',
+                    })),
+                    rawText: rawText.slice(0, 4000),
+                };
+            } catch (err) {
+                console.error('Groq extraction failed, falling back to local parser:', err);
+                parsedData = mapLegacyExtraction(legacyExtraction);
+            }
         } else {
-            // Fallback to the previous line-by-line approach if the regex fails to find clear delimiters.
-            const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
-            let foundSkillsHeader = false;
-
-            for (const line of lines) {
-                if (/(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)/i.test(line)) {
-                    foundSkillsHeader = true;
-                    // Capture content after the header keyword on the same line
-                    skillSectionText += line.replace(/(.*?(TECHNICAL\s*SKILLS?|KEY\s*SKILLS?|TECHNOLOGIES?|FRAMEWORKS?|LANGUAGES?)\s*)/i, '').trim();
-                    continue;
-                }
-
-                if (foundSkillsHeader && skillSectionText.length < 500) {
-                    if (!/(OBJECTIVE|EDUCATION|EXPERIENCE|PROJECTS|WORK)/i.test(line)) {
-                        skillSectionText += ' ' + line;
-                    } else {
-                        break;
-                    }
-                }
-            }
+            parsedData = mapLegacyExtraction(legacyExtraction);
         }
-
-
-        const cleanedBlock = skillSectionText
-            .replace(/\s+/g, ' ') // Collapse multiple spaces
-            .replace(/:\s*/g, ', ') // Replace colons with commas
-            .replace(/(Frontend|Backend|APIs|Tools|Core)\s*/ig, ', '); // Replace internal category headers with delimiters
-
-        // 3. Split by common delimiters
-        const rawSkillsList = cleanedBlock.split(/[,;•|\/]/).map(s => s.trim()).filter(Boolean);
-
-        // 4. Aggressively filter out junk (URLs, locations, short words, filler)
-        const skills = rawSkillsList
-            .filter(s => {
-                const lowerS = s.toLowerCase();
-                // Exclusion criteria:
-                return s.length > 2 &&
-                    !/(\s|and|or|etc|etc\.|a|the|with|of|in|to|is|for|from)/i.test(s) && // Exclude short words and common conjunctions
-                    !/(http|www|\.com|\.org|\.net|\@|github|linkedin|student|mca|odisha|india|pradhan|chinmay|developer)/i.test(lowerS); // Exclude URLs, location, and name components
-            })
-            .slice(0, 15); // Keep up to 15 best candidates
-
-        //  Project Extraction 
-        const projects: { title: string; summary: string }[] = [];
-
-        // Find the block of text between the PROJECTS header and the next major header (e.g., ACHIEVEMENTS)
-        const projectsBlockMatch = text.match(/(TECHNICAL\s*PROJECTS?|PROJECTS?|PORTFOLIO)\s*([^]+?)(?=(KEY\s*ACHIEVEMENTS|EDUCATION|EXPERIENCE|\n[A-Z]{3,}[A-Z\s]+))/i);
-
-        if (projectsBlockMatch && projectsBlockMatch[2]) {
-            const projectText = projectsBlockMatch[2].trim();
-
-            // Define common descriptive verbs that should NOT start a project title, followed by a potential dash.
-            const EXCLUDED_START_WORDS =
-                '(?:Developed|Built|Implemented|Added|Features|Created|BuiltasecurebackendwithNode\\.js|Implementedreal)';
-
-
-            const PROJECT_TITLE_SPLIT_PATTERN =
-                new RegExp(`(?!${EXCLUDED_START_WORDS})([A-Z][a-zA-Z]+[–-][^—\n]+?)`, 'g');
-
-            // Split the text, capturing the delimiters (titles)
-            const parts = projectText.split(PROJECT_TITLE_SPLIT_PATTERN).filter(p => p.trim() !== '');
-
-
-            for (let i = 0; i < parts.length; i++) {
-                const part = parts[i].trim();
-
-                if (part.match(/[A-Z][a-zA-Z]+[–-][^—\n]+?/)) {
-                    const rawTitle = part;
-                    const rawContent = (parts[i + 1] || '').trim(); // Content is the next item
-
-                    // Since we are iterating and consuming the next item (rawContent), increment i again
-                    i++;
-
-                    // Remove link labels and their content from the raw content
-                    let summaryText = rawContent
-                        // Remove GitHub and Demo URLs and labels completely
-                        .replace(/GitHub:.*?(\s—|\n|$)/ig, ' ')
-                        .replace(/Demo:.*?(\s—|\n|$)/ig, ' ')
-                        .replace(/URL:.*?(\s—|\n|$)/ig, ' ')
-                        .trim();
-
-                    // Clean up the bullet points and excessive spacing in the summary
-                    summaryText = summaryText
-                        .replace(/[\•\u2022]/g, ' ') // Replace all bullet characters with spaces
-                        .replace(/\s+/g, ' ') // Collapse multiple spaces
-                        .trim();
-
-
-                    // Final check and push (require a minimum summary length to filter junk)
-                    if (summaryText.length > 20) {
-                        projects.push({
-                            title: rawTitle.replace(/–|-/g, ' - ').trim(), // Normalize dash in title
-                            summary: summaryText.slice(0, 150) + (summaryText.length > 150 ? '...' : '')
-                        });
-                    }
-                }
-            }
-        }
-
-        const parsedData: ParsedResumeData = {
-            email,
-            phone: cleanedPhone,
-            skills,
-            projects,
-            rawText: text.slice(0, 2000)
-        };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sessUser = (session as any).user ?? {};

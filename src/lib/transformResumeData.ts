@@ -1,5 +1,5 @@
 interface Pdf2JsonBlock {
-  text: string;
+  R: { T: string }[];
 }
 
 interface Pdf2JsonPage {
@@ -44,8 +44,10 @@ const SECTION_HEADERS: Record<string, string> = {
   'CORE COMPETENCIES': 'skills',
   'PROJECTS': 'projects',
   'TECHNICAL PROJECTS': 'projects',
+  'TECHNICALPROJECTS': 'projects', // pdf2json merged artifact
   'PERSONAL PROJECTS': 'projects',
   'KEY ACHIEVEMENTS': 'achievements',
+  'KEYACHIEVEMENTS': 'achievements', // pdf2json merged artifact
   'SUMMARY': 'summary',
   'PROFESSIONAL SUMMARY': 'summary',
   'PROFILE': 'summary',
@@ -56,15 +58,45 @@ const SECTION_HEADERS: Record<string, string> = {
  * Splits the raw text into sections based on known headers.
  */
 function extractSections(text: string): Record<string, string> {
-  const lines = text.split(/\r?\n/);
+  // 1. Join clean lines, attempting to merge fragmented headers (e.g. "PRO" + "JECTS")
+  // Heuristic: If a line is short, uppercase, and the next line is also uppercase, join them.
+  const rawLines = text.split(/\r?\n/);
+  const mergedLines: string[] = [];
+
+  for (let i = 0; i < rawLines.length; i++) {
+    let line = rawLines[i].trim();
+
+    // Heuristic: If this line is short (< 5 chars), uppercase, and next line is uppercase, merge.
+    // e.g. "E" + "XPERIENCE"
+    // Only do this if the merge creates a known header
+    if (line.length > 0 && line.length < 10 && /^[A-Z\s]+$/.test(line) && i + 1 < rawLines.length) {
+      const nextLine = rawLines[i + 1].trim();
+      if (/^[A-Z\s]+$/.test(nextLine)) {
+        // Fix: Use version WITH space so it matches standard keys
+        const combinedSpace = line + ' ' + nextLine;
+        const cleanNoSpace = (line + nextLine).replace(/[^A-Z]/g, '');
+
+        // Check if the spaceless version would have matched a known header key (normalized to upper-clean)
+        // If so, we use the SPACED version for the line content so SECTION_HEADERS lookup works later.
+        if (SECTION_HEADERS[cleanNoSpace]) {
+          line = combinedSpace;
+          i++; // Skip next
+        }
+      }
+    }
+
+    mergedLines.push(line);
+  }
+
   const sections: Record<string, string> = {
     'summary': '', // Default bucket for top content
   };
 
   let currentSection = 'summary';
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+  for (let i = 0; i < mergedLines.length; i++) {
+    const line = mergedLines[i];
+
 
     // Check if this line is a header
     // Heuristic: Uppercase, relatively short, matches known keywords
@@ -201,7 +233,7 @@ function extractSkills(text: string): string[] {
 }
 
 
-function extractProjects(text: string): { name: string; summary: string }[] {
+function extractProjects(text: string): { title: string; summary: string }[] {
   if (!text) return [];
 
   // 1. Heal specific broken lines in projects (e.g. "Title - K" \n "nowledge")
@@ -210,7 +242,7 @@ function extractProjects(text: string): { name: string; summary: string }[] {
   // 2. Fix camelCase again
   healedText = healedText.replace(/([a-z])([A-Z])/g, '$1 $2');
 
-  const projects: { name: string; summary: string }[] = [];
+  const projects: { title: string; summary: string }[] = [];
 
   // Split blocks by double newlines or bold-ish lines
   const blocks = healedText.split(/\n\s*\n/);
@@ -221,7 +253,7 @@ function extractProjects(text: string): { name: string; summary: string }[] {
 
     // Check if this block contains multiple "Title - Summary" lines
     const lines = cleanBlock.split('\n');
-    let currentProject: { name: string; summary: string } | null = null;
+    let currentProject: { title: string; summary: string } | null = null;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -232,28 +264,57 @@ function extractProjects(text: string): { name: string; summary: string }[] {
       // 2. OR it matches "Name - Description" pattern (Name starts with Capital)
       // 3. AND it's not just a continuation of the previous sentence (lowercase start? No, title matches Capital)
 
-      const isDashTitle = /^[A-Z].*?\s+-\s+/.test(line);
+      const isDashTitle = /^[A-Z].*?[-–]/.test(line); // Relaxed: Just check for dash
+      const isColonTitle = /^[A-Z].*?:\s+/.test(line); // Added colon support
 
-      if (currentProject === null || isDashTitle) {
+      if (currentProject === null || isDashTitle || isColonTitle) {
         // Push previous project if exists
         if (currentProject) {
-          projects.push(currentProject);
+          const projectToPush = currentProject as { title: string; summary: string };
+          projects.push(projectToPush);
+          currentProject = null;
         }
 
         // Start new project
         if (isDashTitle) {
-          const parts = line.split(/\s+-\s+/);
-          const name = parts[0].trim();
-          const summary = parts.slice(1).join(' - ').trim();
-          currentProject = { name, summary };
+          // Attempt to split by standard dash spacing first
+          let parts = line.split(/\s+[-–]\s+/);
+          if (parts.length < 2) {
+            // Fallback: split by any dash
+            parts = line.split(/[-–]/);
+          }
+
+          if (parts.length >= 2) {
+            const title = parts[0].trim();
+            const summary = parts.slice(1).join(' - ').trim();
+            currentProject = { title, summary };
+          } else {
+            // Failed to split properly, treat as line content or simple title?
+            if (currentProject === null && i === 0) {
+              currentProject = { title: line, summary: '' };
+            } else {
+              // Probably just a list item starting with dash
+              if (currentProject) {
+                currentProject.summary += (currentProject.summary ? ' ' : '') + line;
+              }
+            }
+          }
+        } else if (isColonTitle) {
+          const parts = line.split(/:\s+/);
+          const title = parts[0].trim();
+          const summary = parts.slice(1).join(': ').trim();
+          currentProject = { title, summary };
         } else {
           // Determine if we should treat this line as a name
-          // If it is the first line, yes.
-          if (currentProject === null) {
-            currentProject = { name: line, summary: '' };
-          } else {
-            // Append to current project summary
-            currentProject.summary += (currentProject.summary ? ' ' : '') + line;
+          // If it is the first line of the block, yes.
+          if (currentProject === null && i === 0) {
+            // Maybe the user just has "Project Name" on one line and description below
+            // Only if line is short (title-like)
+            if (line.length < 60) {
+              currentProject = { title: line, summary: '' };
+            } else {
+              // Probably just text or garbage line at start of block
+            }
           }
         }
       } else {
@@ -274,9 +335,17 @@ function extractProjects(text: string): { name: string; summary: string }[] {
 
 
 export function transformResumeData(rawData: Pdf2JsonData) {
-  // 1. Flatten text with basic decoding
+  // 1. Flatten text with basic decoding from the correct JSON structure
   const textBlocks = rawData.Pages.flatMap((p) =>
-    p.Texts.map((t) => decodeURIComponent(t.text))
+    p.Texts.map((t) => {
+      const rawT = t.R?.[0]?.T;
+      if (!rawT) return '';
+      try {
+        return decodeURIComponent(rawT);
+      } catch {
+        return rawT;
+      }
+    })
   );
 
   // 2. Initial cleanup of individual blocks before joining
