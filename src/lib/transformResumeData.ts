@@ -270,9 +270,7 @@ function extractProjects(text: string): { title: string; summary: string }[] {
       if (currentProject === null || isDashTitle || isColonTitle) {
         // Push previous project if exists
         if (currentProject) {
-          const projectToPush = currentProject as { title: string; summary: string };
-          projects.push(projectToPush);
-          currentProject = null;
+          projects.push(currentProject);
         }
 
         // Start new project
