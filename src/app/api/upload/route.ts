@@ -43,6 +43,21 @@ interface ParsedResumeData {
     rawText: string;
 }
 
+const SUPPRESSED_PDF_WARNINGS = [
+    "Setting up fake worker",
+    "Unsupported: field.type of Link",
+    "NOT valid form element",
+];
+
+interface PdfParserErrorEvent {
+    parserError: unknown;
+}
+
+interface PdfParserInstance {
+    on(event: "pdfParser_dataError", handler: (errData: PdfParserErrorEvent) => void): void;
+    on(event: "pdfParser_dataReady", handler: (pdfData: Pdf2JsonData) => void): void;
+    parseBuffer(buffer: Buffer): void;
+}
 
 function isFileLike(x: unknown): x is FileLike {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,25 +68,54 @@ function isFileLike(x: unknown): x is FileLike {
 async function parsePdfWithPdf2Json(buffer: Buffer | Uint8Array): Promise<Pdf2JsonData> {
 
     const pdfBuffer = Buffer.from(buffer);
+    const originalWarn = console.warn;
+    const originalLog = console.log;
+    const shouldSuppressPdfWarning = (value: unknown) => {
+        const text = typeof value === 'string' ? value : String(value);
+        return SUPPRESSED_PDF_WARNINGS.some((warning) => text.includes(warning));
+    };
+
+    console.warn = (...args: unknown[]) => {
+        if (args.some((arg) => shouldSuppressPdfWarning(arg))) {
+            return;
+        }
+
+        originalWarn(...args);
+    };
+
+    console.log = (...args: unknown[]) => {
+        if (args.some((arg) => shouldSuppressPdfWarning(arg))) {
+            return;
+        }
+
+        originalLog(...args);
+    };
 
     return new Promise((resolve, reject) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pdfParser = new (Pdfparser as any)(null, 1);
+        const PdfParserCtor = Pdfparser as unknown as new (context?: unknown, scale?: number) => PdfParserInstance;
+        const pdfParser = new PdfParserCtor(null, 1);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        pdfParser.on("pdfParser_dataError", (errData: any) => {
+        pdfParser.on("pdfParser_dataError", (errData: PdfParserErrorEvent) => {
+            console.warn = originalWarn;
+            console.log = originalLog;
             console.error("PDF2JSON Error:", errData.parserError);
             reject(new Error(`PDF parsing failed: ${errData.parserError}`));
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pdfParser.on("pdfParser_dataReady", (pdfData: Pdf2JsonData) => {
+            console.warn = originalWarn;
+            console.log = originalLog;
             resolve(pdfData);
         });
 
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (pdfParser as any).parseBuffer(pdfBuffer);
+        try {
+            pdfParser.parseBuffer(pdfBuffer);
+        } catch (error) {
+            console.warn = originalWarn;
+            console.log = originalLog;
+            reject(error);
+        }
     });
 }
 

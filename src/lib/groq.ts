@@ -1,5 +1,6 @@
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const JSON_SCHEMA_UNSUPPORTED_MESSAGE = "does not support response format `json_schema`";
 
 export interface ExtractedExperience {
   company: string;
@@ -32,6 +33,14 @@ export interface ExtractedPortfolioData {
   experience: ExtractedExperience[];
   education: ExtractedEducation[];
   projects: ExtractedProject[];
+}
+
+interface GroqChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
 }
 
 const portfolioJsonSchema = {
@@ -189,6 +198,60 @@ export function isGroqConfigured() {
   return Boolean(process.env.GROQ_API_KEY);
 }
 
+async function requestGroqExtraction(
+  apiKey: string,
+  prompt: string,
+  useJsonSchema: boolean
+): Promise<GroqChatCompletionResponse> {
+  const response = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: DEFAULT_MODEL,
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content: useJsonSchema
+            ? "You extract structured resume data and return valid JSON only."
+            : [
+                "You extract structured resume data and return valid JSON only.",
+                "Return a single JSON object with these top-level keys exactly:",
+                "name, email, phone, headline, summary, skills, experience, education, projects.",
+                "Use arrays for skills, experience, education, and projects.",
+                "Each experience item must include company, position, startDate, endDate, description.",
+                "Each education item must include institution, degree, startYear, endYear.",
+                "Each project item must include name, description, link.",
+                "Do not wrap the JSON in markdown fences.",
+              ].join(" ")
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: useJsonSchema
+        ? {
+            type: "json_schema",
+            json_schema: portfolioJsonSchema
+          }
+        : {
+            type: "json_object"
+          }
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq request failed (${response.status}): ${errorText}`);
+  }
+
+  return response.json();
+}
+
 export async function extractPortfolioWithGroq(rawText: string): Promise<ExtractedPortfolioData> {
   const apiKey = process.env.GROQ_API_KEY;
 
@@ -209,38 +272,19 @@ export async function extractPortfolioWithGroq(rawText: string): Promise<Extract
     rawText.slice(0, 18000),
   ].join("\n");
 
-  const response = await fetch(GROQ_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      temperature: 0.2,
-      messages: [
-        {
-          role: "system",
-          content: "You extract structured resume data and return valid JSON only."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: portfolioJsonSchema
-      }
-    }),
-  });
+  let payload: GroqChatCompletionResponse;
+  try {
+    payload = await requestGroqExtraction(apiKey, prompt, true);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Groq request failed (${response.status}): ${errorText}`);
+    if (!message.includes(JSON_SCHEMA_UNSUPPORTED_MESSAGE)) {
+      throw error;
+    }
+
+    payload = await requestGroqExtraction(apiKey, prompt, false);
   }
 
-  const payload = await response.json();
   const content = payload?.choices?.[0]?.message?.content;
 
   if (typeof content !== "string" || !content.trim()) {
