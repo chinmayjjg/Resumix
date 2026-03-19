@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, User, Settings, FileText, LogOut, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
+import Logo from "@/components/Logo";
 
 const sidebarItems = [
     {
@@ -41,7 +42,7 @@ export default function Sidebar() {
         <div className="flex flex-col h-full bg-white/60 backdrop-blur-md border-r border-slate-200/60 w-64 shadow-[1px_0_20px_0px_rgba(0,0,0,0.02)]">
             <div className="p-6 flex items-center gap-2">
                 <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                    <Sparkles className="w-5 h-5" />
+                    <Logo className="w-5 h-5" />
                 </div>
                 <h2 className="text-xl font-serif font-bold text-foreground">Resumix</h2>
             </div>

@@ -6,6 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, LogOut, LayoutDashboard, User, ChevronDown, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function Navbar() {
     const { data: session } = useSession();
@@ -41,7 +42,7 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <div className="p-2 bg-primary/10 rounded-lg text-primary transform group-hover:rotate-12 transition-transform duration-300">
-                            <Sparkles className="w-5 h-5" />
+                            <Logo className="w-5 h-5" />
                         </div>
                         <span className="text-2xl font-serif font-bold text-foreground">
                             Resumix

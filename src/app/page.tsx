@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sparkles, FileText, Palette, Globe, CheckCircle, ArrowRight } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function Home() {
   return (
@@ -143,7 +144,7 @@ export default function Home() {
           <div className="text-center md:text-left">
             <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
               <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                <Sparkles className="w-4 h-4" />
+                <Logo className="w-4 h-4" />
               </div>
               <span className="text-xl font-serif font-bold text-foreground">Resumix</span>
             </div>
