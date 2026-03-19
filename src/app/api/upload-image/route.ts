@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+
 
 export async function POST(request: Request) {
     try {
@@ -11,13 +10,11 @@ export async function POST(request: Request) {
         }
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-        await fs.mkdir(uploadsDir, { recursive: true });
-        const timestamp = Date.now();
-        const filename = `${timestamp}-${file.name}`;
-        const filePath = path.join(uploadsDir, filename);
-        await fs.writeFile(filePath, buffer);
-        const fileUrl = `/uploads/${filename}`;
+        
+        // Convert to base64 Data URI to avoid local filesystem storage on Vercel
+        const base64String = buffer.toString('base64');
+        const fileUrl = `data:${file.type};base64,${base64String}`;
+        
         return NextResponse.json({ url: fileUrl });
     } catch (error) {
         console.error(error);
