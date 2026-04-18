@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, Settings, FileText, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, User, Settings, FileText, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 import Logo from "@/components/Logo";

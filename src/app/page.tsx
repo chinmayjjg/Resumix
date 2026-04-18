@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, FileText, Star, Cloud, Sparkles } from "lucide-react";
-import Logo from "@/components/Logo";
+import { ArrowRight, FileText, Cloud, Sparkles } from "lucide-react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
@@ -44,6 +43,7 @@ export default async function Home() {
           
           <div className="lg:w-1/2 w-full mt-10 lg:mt-0 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-lg aspect-[4/5] md:aspect-square bg-white shadow-2xl rotate-3 rounded-lg overflow-hidden border-[8px] border-white z-10 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80" 
                 alt="Laptop displaying resume" 
@@ -113,7 +113,7 @@ export default async function Home() {
             <div className="max-w-xl">
               <h2 className="text-4xl font-serif text-[#111111] mb-4">Curated Visual Languages</h2>
               <p className="text-slate-500 font-light">
-                Select from styles that match your industry's gravity. From tech-forward minimalism to executive authority.
+                Select from styles that match your industry&apos;s gravity. From tech-forward minimalism to executive authority.
               </p>
             </div>
             <Link href="#themes" className="text-primary text-xs uppercase tracking-widest font-bold border-b border-primary/30 pb-1 hover:border-primary transition-colors">
@@ -191,7 +191,7 @@ export default async function Home() {
                       <span className="italic text-primary">Transformation</span>
                   </h2>
                   <p className="text-slate-500 font-light leading-relaxed">
-                      We've eliminated the friction of web development. You bring the content, we bring the curation.
+                      We&apos;ve eliminated the friction of web development. You bring the content, we bring the curation.
                   </p>
               </div>
 
