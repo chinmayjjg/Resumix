@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, FileText, Star, Cloud, Sparkles } from "lucide-react";
 import Logo from "@/components/Logo";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  const getStartedUrl = session ? "/dashboard" : "/login";
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground tracking-tight selection:bg-primary/20">
 
@@ -23,7 +28,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
               <Link
-                href="/login"
+                href={getStartedUrl}
                 className="px-8 py-3.5 bg-[#111111] text-white text-base rounded-sm font-medium hover:bg-black/90 transition-all text-center"
               >
                 Build Your Portfolio
@@ -250,7 +255,7 @@ export default function Home() {
                 Stop sending static files. Start sending experiences. Your professional legacy deserves a better stage.
               </p>
               <Link
-                href="/login"
+                href={getStartedUrl}
                 className="px-10 py-4 bg-white text-[#111111] text-base rounded-sm font-medium hover:bg-slate-100 transition-all shadow-xl hover:scale-[1.02]"
               >
                 Get Started for Free
