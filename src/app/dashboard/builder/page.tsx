@@ -343,7 +343,7 @@ export default function BuilderPage() {
             {/* Visual design studio */}
             {showDesignModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-7 relative shadow-2xl">
+                    <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-5 sm:p-7 relative shadow-2xl">
                         <button
                             onClick={() => setShowDesignModal(false)}
                             className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-50 bg-slate-100 rounded-full p-2 hover:bg-slate-200 transition-colors"
@@ -352,7 +352,7 @@ export default function BuilderPage() {
                         </button>
                         <h2 className="text-3xl font-serif font-bold mb-2 text-foreground">Design your portfolio</h2>
                         <p className="mb-6 text-sm text-muted-foreground">Start with AI, then make the canvas completely yours.</p>
-                        <DesignStudio design={data.design} headline={data.headline} onChange={handleDesignChange} />
+                        <DesignStudio design={data.design} headline={data.headline} name={data.name} onChange={handleDesignChange} />
                     </div>
                 </div>
             )}

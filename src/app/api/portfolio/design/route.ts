@@ -15,7 +15,14 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { brief = '', headline = '' } = await request.json();
+  let input: { brief?: unknown; headline?: unknown };
+  try {
+    input = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid design request' }, { status: 400 });
+  }
+  const brief = typeof input.brief === 'string' ? input.brief.slice(0, 500) : '';
+  const headline = typeof input.headline === 'string' ? input.headline.slice(0, 300) : '';
   const fallback = fallbackDesign(headline, brief);
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return NextResponse.json({ design: fallback, generatedBy: 'starter' });
@@ -29,13 +36,14 @@ export async function POST(request: Request) {
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: `You are a portfolio art director. Return JSON only with accent, background, surface, text, mutedText (hex colors), font (sans|serif|mono), hero (centered|split|minimal), radius (soft|rounded|sharp), and sectionOrder. Make an accessible, restrained portfolio design. Allowed accent choices: ${colors.join(', ')}. sectionOrder may only use about, skills, experience, projects, education.` },
-          { role: 'user', content: `Professional headline: ${headline}. Design brief: ${String(brief).slice(0, 500)}` },
+          { role: 'user', content: `Professional headline: ${headline}. Design brief: ${brief}` },
         ],
       }),
     });
     if (!response.ok) throw new Error('AI request failed');
     const payload = await response.json();
     const content = payload?.choices?.[0]?.message?.content;
+    if (typeof content !== 'string' || !content.trim()) throw new Error('AI returned no design');
     return NextResponse.json({ design: normalizePortfolioDesign(JSON.parse(content) as Partial<PortfolioDesign>), generatedBy: 'ai' });
   } catch {
     return NextResponse.json({ design: fallback, generatedBy: 'starter' });
