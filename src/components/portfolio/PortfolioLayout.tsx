@@ -6,6 +6,7 @@ const ProfessionalTemplate = dynamic(() => import('./templates/ProfessionalTempl
 const CreativeTemplate = dynamic(() => import('./templates/CreativeTemplate'));
 const TechTemplate = dynamic(() => import('./templates/TechTemplate'));
 const CuteTemplate = dynamic(() => import('./templates/CuteTemplate'));
+const CustomTemplate = dynamic(() => import('./templates/CustomTemplate'));
 
 
 import { IPortfolio } from '@/models/Portfolio';
@@ -14,6 +15,8 @@ export default function PortfolioLayout({ portfolio }: { portfolio: IPortfolio }
   const template = portfolio.template || 'modern';
 
   switch (template) {
+    case 'custom':
+      return <CustomTemplate portfolio={portfolio} />;
     case 'minimal':
       return <MinimalTemplate portfolio={portfolio} />;
     case 'professional':

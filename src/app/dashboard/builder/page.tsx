@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import ThemePreviewGrid from '@/components/portfolio/ThemePreviewGrid';
-import { IPortfolio } from '@/models/Portfolio';
+import DesignStudio from '@/components/portfolio/DesignStudio';
+import { PortfolioDesign } from '@/lib/portfolioDesign';
 import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X } from 'lucide-react';
 
 interface Experience {
@@ -43,6 +43,7 @@ interface PortfolioData {
     userId?: string;
     template?: string;
     userImage?: string; // URL of uploaded profile picture
+    design?: PortfolioDesign;
 }
 
 const initialData: PortfolioData = {
@@ -64,7 +65,7 @@ export default function BuilderPage() {
     const [data, setData] = useState<PortfolioData>(initialData);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [showThemeModal, setShowThemeModal] = useState(false);
+    const [showDesignModal, setShowDesignModal] = useState(false);
 
     useEffect(() => {
         fetchPortfolio();
@@ -230,23 +231,8 @@ export default function BuilderPage() {
         }
     };
 
-    const handleThemeSwitch = async (newTemplate: string) => {
-        // Optimistic update
-        const updatedData = { ...data, template: newTemplate };
-        setData(updatedData); // Update local state immediately to reflect if needed
-        setShowThemeModal(false);
-
-        // Save to background
-        try {
-            await fetch('/api/portfolio/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedData),
-            });
-        } catch (err) {
-            console.error('Failed to save theme change', err);
-            alert('Failed to save theme change');
-        }
+    const handleDesignChange = (design: PortfolioDesign) => {
+        setData(prev => ({ ...prev, template: 'custom', design }));
     };
 
     if (loading) return (
@@ -304,11 +290,11 @@ export default function BuilderPage() {
                     <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
                     <button
-                        onClick={() => setShowThemeModal(true)}
+                        onClick={() => setShowDesignModal(true)}
                         className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-secondary-foreground/80 hover:text-secondary-foreground hover:bg-secondary/20 rounded-lg transition-colors"
                     >
                         <Palette className="w-4 h-4" />
-                        <span className="hidden sm:inline">Theme</span>
+                        <span className="hidden sm:inline">Design</span>
                     </button>
 
                     {data.userId && (
@@ -354,22 +340,19 @@ export default function BuilderPage() {
                 </div>
             </nav>
 
-            {/* Theme Selection Modal */}
-            {showThemeModal && (
+            {/* Visual design studio */}
+            {showDesignModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-8 relative shadow-2xl">
+                    <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-7 relative shadow-2xl">
                         <button
-                            onClick={() => setShowThemeModal(false)}
+                            onClick={() => setShowDesignModal(false)}
                             className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-50 bg-slate-100 rounded-full p-2 hover:bg-slate-200 transition-colors"
                         >
                             <X className="w-6 h-6" />
                         </button>
-                        <h2 className="text-3xl font-serif font-bold mb-8 text-center text-foreground">Choose Your Style</h2>
-                        <ThemePreviewGrid
-                            portfolioData={data as unknown as Partial<IPortfolio>}
-                            onSelect={handleThemeSwitch}
-                            currentTemplate={data.template}
-                        />
+                        <h2 className="text-3xl font-serif font-bold mb-2 text-foreground">Design your portfolio</h2>
+                        <p className="mb-6 text-sm text-muted-foreground">Start with AI, then make the canvas completely yours.</p>
+                        <DesignStudio design={data.design} headline={data.headline} onChange={handleDesignChange} />
                     </div>
                 </div>
             )}

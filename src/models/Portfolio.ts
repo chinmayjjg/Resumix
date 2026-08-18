@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, models } from 'mongoose';
+import { PortfolioDesign } from '@/lib/portfolioDesign';
 
 export interface IExperience {
   company: string;
@@ -39,7 +40,8 @@ export interface IPortfolio extends Document {
   experience: IExperience[];
   education: IEducation[];
   projects: IProject[];
-  template?: 'modern' | 'minimal' | 'professional' | 'creative' | 'tech' | 'cute';
+  template?: 'modern' | 'minimal' | 'professional' | 'creative' | 'tech' | 'cute' | 'custom';
+  design?: PortfolioDesign;
   userImage?: string; // URL to profile picture
   createdAt: Date;
   updatedAt: Date;
@@ -78,9 +80,10 @@ const PortfolioSchema = new Schema<IPortfolio>(
     },
     template: {
       type: String,
-      enum: ['modern', 'minimal', 'professional', 'creative', 'tech', 'cute'],
+      enum: ['modern', 'minimal', 'professional', 'creative', 'tech', 'cute', 'custom'],
       default: 'modern'
     },
+    design: { type: Schema.Types.Mixed },
     userImage: { type: String },
     projects: [
       {
