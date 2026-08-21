@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { normalizePortfolioDesign, PortfolioDesign } from '@/lib/portfolioDesign';
+import { getGroqModel } from '@/lib/groq';
 
 type Input = Record<string, unknown>;
 
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile', temperature: 0.45, response_format: { type: 'json_object' }, messages: [
+      body: JSON.stringify({ model: getGroqModel(), temperature: 0.45, response_format: { type: 'json_object' }, messages: [
         { role: 'system', content: 'You are a careful portfolio writer and art director. Return JSON only with keys portfolio and design. portfolio has exactly name, email, phone, headline, summary, skills, experience, education, projects. Preserve supplied factual details; never invent employers, dates, credentials, project links, or metrics. Improve wording only. You may leave unknown values empty. design has accent, background, surface, text, mutedText (hex colors), font (sans|serif|mono), hero (centered|split|minimal), radius (soft|rounded|sharp), and sectionOrder using only about, skills, experience, projects, education.' },
         { role: 'user', content: JSON.stringify({ brief, currentPortfolio: current }) },
       ] }),

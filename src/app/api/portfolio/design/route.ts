@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { defaultPortfolioDesign, normalizePortfolioDesign, PortfolioDesign } from '@/lib/portfolioDesign';
+import { getGroqModel } from '@/lib/groq';
 
 const colors = ['#6d5dfc', '#0f766e', '#db2777', '#ea580c', '#2563eb', '#111827'];
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile', temperature: 0.7,
+        model: getGroqModel(), temperature: 0.7,
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: `You are a portfolio art director. Return JSON only with accent, background, surface, text, mutedText (hex colors), font (sans|serif|mono), hero (centered|split|minimal), radius (soft|rounded|sharp), and sectionOrder. Make an accessible, restrained portfolio design. Allowed accent choices: ${colors.join(', ')}. sectionOrder may only use about, skills, experience, projects, education.` },

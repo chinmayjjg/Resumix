@@ -1,5 +1,9 @@
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const RETIRED_MODELS: Record<string, string> = {
+  "llama-3.3-70b-versatile": "openai/gpt-oss-120b",
+  "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+};
+const DEFAULT_MODEL = "openai/gpt-oss-120b";
 const JSON_SCHEMA_UNSUPPORTED_MESSAGE = "does not support response format `json_schema`";
 
 export interface ExtractedExperience {
@@ -198,6 +202,11 @@ export function isGroqConfigured() {
   return Boolean(process.env.GROQ_API_KEY);
 }
 
+export function getGroqModel() {
+  const configured = process.env.GROQ_MODEL?.trim();
+  return RETIRED_MODELS[configured ?? ''] || configured || DEFAULT_MODEL;
+}
+
 async function requestGroqExtraction(
   apiKey: string,
   prompt: string,
@@ -210,7 +219,7 @@ async function requestGroqExtraction(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: DEFAULT_MODEL,
+      model: getGroqModel(),
       temperature: 0.2,
       messages: [
         {
