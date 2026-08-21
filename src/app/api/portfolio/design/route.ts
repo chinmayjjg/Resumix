@@ -45,7 +45,10 @@ export async function POST(request: Request) {
     const content = payload?.choices?.[0]?.message?.content;
     if (typeof content !== 'string' || !content.trim()) throw new Error('AI returned no design');
     return NextResponse.json({ design: normalizePortfolioDesign(JSON.parse(content) as Partial<PortfolioDesign>), generatedBy: 'ai' });
-  } catch {
-    return NextResponse.json({ design: fallback, generatedBy: 'starter' });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? `Groq design generation failed: ${error.message}` : 'Groq design generation failed.' },
+      { status: 502 }
+    );
   }
 }
