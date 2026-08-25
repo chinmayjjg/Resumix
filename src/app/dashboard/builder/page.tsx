@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import DesignStudio from '@/components/portfolio/DesignStudio';
+import ThemePreviewGrid from '@/components/portfolio/ThemePreviewGrid';
 import { PortfolioDesign } from '@/lib/portfolioDesign';
+import { IPortfolio } from '@/models/Portfolio';
 import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X } from 'lucide-react';
 
 interface Experience {
@@ -231,10 +232,6 @@ export default function BuilderPage() {
         }
     };
 
-    const handleDesignChange = (design: PortfolioDesign) => {
-        setData(prev => ({ ...prev, template: 'custom', design }));
-    };
-
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -350,9 +347,13 @@ export default function BuilderPage() {
                         >
                             <X className="w-6 h-6" />
                         </button>
-                        <h2 className="text-3xl font-serif font-bold mb-2 text-foreground">Design your portfolio</h2>
-                        <p className="mb-6 text-sm text-muted-foreground">Choose your colors, typography, layout, and section order manually.</p>
-                        <DesignStudio design={data.design} headline={data.headline} name={data.name} onChange={handleDesignChange} />
+                        <h2 className="text-3xl font-serif font-bold mb-2 text-foreground">Choose your portfolio template</h2>
+                        <p className="mb-6 text-sm text-muted-foreground">Select a template to apply its design to your live portfolio.</p>
+                        <ThemePreviewGrid
+                            portfolioData={data as Partial<IPortfolio>}
+                            currentTemplate={data.template}
+                            onSelect={(template) => setData(prev => ({ ...prev, template }))}
+                        />
                     </div>
                 </div>
             )}
