@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { ArrowRight, FileText, Cloud, Sparkles } from "lucide-react";
 import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  const getStartedUrl = session ? "/dashboard" : "/login";
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  const getStartedUrl = "/login";
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground tracking-tight selection:bg-primary/20">
