@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 import DesignStudio from '@/components/portfolio/DesignStudio';
 import { PortfolioDesign } from '@/lib/portfolioDesign';
-import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X, Wand2, Loader2 } from 'lucide-react';
+import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X } from 'lucide-react';
 
 interface Experience {
     company: string;
@@ -66,9 +66,6 @@ export default function BuilderPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [showDesignModal, setShowDesignModal] = useState(false);
-    const [generating, setGenerating] = useState(false);
-    const [generationBrief, setGenerationBrief] = useState('');
-    const [generationMessage, setGenerationMessage] = useState('');
 
     useEffect(() => {
         fetchPortfolio();
@@ -238,32 +235,6 @@ export default function BuilderPage() {
         setData(prev => ({ ...prev, template: 'custom', design }));
     };
 
-    const generateWithGroq = async () => {
-        setGenerating(true);
-        setGenerationMessage('');
-        try {
-            const res = await fetch('/api/portfolio/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ brief: generationBrief, portfolio: data }),
-            });
-            const result = await res.json();
-            if (!res.ok || !result.portfolio) throw new Error(result.error || 'Could not generate your portfolio.');
-
-            setData(prev => ({
-                ...prev,
-                ...result.portfolio,
-                design: result.design || prev.design,
-                template: 'custom',
-            }));
-            setGenerationMessage('Groq generated a draft. Review and edit any field before saving.');
-        } catch (error) {
-            setGenerationMessage(error instanceof Error ? error.message : 'Could not generate your portfolio.');
-        } finally {
-            setGenerating(false);
-        }
-    };
-
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -380,7 +351,7 @@ export default function BuilderPage() {
                             <X className="w-6 h-6" />
                         </button>
                         <h2 className="text-3xl font-serif font-bold mb-2 text-foreground">Design your portfolio</h2>
-                        <p className="mb-6 text-sm text-muted-foreground">Start with AI, then make the canvas completely yours.</p>
+                        <p className="mb-6 text-sm text-muted-foreground">Choose your colors, typography, layout, and section order manually.</p>
                         <DesignStudio design={data.design} headline={data.headline} name={data.name} onChange={handleDesignChange} />
                     </div>
                 </div>
@@ -392,27 +363,6 @@ export default function BuilderPage() {
                         {/* Old Header Removed - replaced by fixed navbar */}
 
                         <div className="space-y-10">
-                            <section className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 text-sm font-bold text-violet-950"><Sparkles className="h-4 w-4 text-violet-600" />Generate portfolio with Groq</div>
-                                        <p className="mt-1 text-sm text-slate-600">Describe the role or style you want. Groq creates an editable content draft and design direction from the details below.</p>
-                                        <textarea
-                                            value={generationBrief}
-                                            onChange={(e) => setGenerationBrief(e.target.value)}
-                                            rows={2}
-                                            placeholder="e.g. A confident frontend developer portfolio aimed at product companies"
-                                            className="mt-3 w-full rounded-xl border border-violet-200 bg-white p-3 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                                        />
-                                    </div>
-                                    <button type="button" onClick={generateWithGroq} disabled={generating} className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-60">
-                                        {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                                        {generating ? 'Generating...' : 'Generate draft'}
-                                    </button>
-                                </div>
-                                {generationMessage && <p className="mt-3 text-sm font-medium text-violet-800">{generationMessage}</p>}
-                            </section>
-
                             {/* Personal Info */}
                             <section>
                                 <h2 className="text-xl font-serif font-bold text-foreground border-b border-slate-200/60 pb-4 mb-6 flex items-center gap-2">
