@@ -35,27 +35,28 @@ export default function Navbar() {
         : 'U';
 
     return (
-        <nav className="fixed w-full top-0 z-50 bg-[#f6f5f3] transition-all duration-300 pointer-events-auto shadow-none border-none">
+        <nav className="fixed w-full top-0 z-50 border-b border-white/10 bg-[#070b18]/75 backdrop-blur-xl transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-24">
+                <div className="flex items-center justify-between h-20">
                     {/* Logo (Left) */}
                     <div className="flex-1 flex justify-start">
                         <Link href="/" className="flex items-center gap-2 group">
-                            <span className="text-3xl font-serif font-bold text-foreground">
+                            <span className="text-2xl font-bold tracking-tight text-white">
                                 Resumix
                             </span>
+                            <span className="rounded-full border border-violet-300/25 bg-violet-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-violet-200">AI</span>
                         </Link>
                     </div>
 
                     {/* Center Links */}
-                    <div className="hidden md:flex flex-1 justify-center space-x-12">
-                        <Link href="#themes" className="text-sm font-medium text-slate-500 hover:text-foreground transition-colors">
+                    <div className="hidden md:flex flex-1 justify-center space-x-8">
+                        <Link href="#themes" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Themes
                         </Link>
-                        <Link href="#features" className="text-sm font-medium text-slate-500 hover:text-foreground transition-colors">
+                        <Link href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Features
                         </Link>
-                        <Link href="#pricing" className="text-sm font-medium text-slate-500 hover:text-foreground transition-colors">
+                        <Link href="#pricing" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Pricing
                         </Link>
                     </div>
@@ -66,7 +67,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-6">
                                 <Link
                                     href="/dashboard"
-                                    className="text-sm font-medium text-slate-500 hover:text-foreground transition-colors"
+                                    className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
                                 >
                                     Dashboard
                                 </Link>
@@ -138,13 +139,13 @@ export default function Navbar() {
                             <div className="hidden sm:flex items-center gap-6">
                                 <Link
                                     href="/login"
-                                    className="text-sm font-medium text-foreground hover:text-black transition-colors"
+                                    className="text-sm font-medium text-slate-200 hover:text-white transition-colors"
                                 >
                                     Login
                                 </Link>
                                 <Link
                                     href="/login"
-                                    className="bg-black text-white hover:bg-black/90 px-6 py-2.5 rounded-sm text-sm font-medium transition-all"
+                                    className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition-all hover:scale-[1.03] hover:bg-violet-100"
                                 >
                                     Build My Resume
                                 </Link>
@@ -170,7 +171,7 @@ export default function Navbar() {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="sm:hidden absolute w-full bg-[#f6f5f3] border-b border-gray-200 shadow-sm">
+                <div className="sm:hidden absolute w-full border-b border-white/10 bg-[#0b1122] shadow-sm">
                     <div className="px-4 pt-2 pb-6 space-y-2">
                         <Link href="#themes" onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-base font-medium text-foreground">Themes</Link>
                         <Link href="#features" onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-base font-medium text-foreground">Features</Link>

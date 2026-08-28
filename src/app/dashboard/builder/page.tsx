@@ -69,6 +69,10 @@ export default function BuilderPage() {
     const [showDesignModal, setShowDesignModal] = useState(false);
 
     useEffect(() => {
+        document.documentElement.classList.toggle('dark', data.theme === 'dark');
+    }, [data.theme]);
+
+    useEffect(() => {
         fetchPortfolio();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -239,7 +243,7 @@ export default function BuilderPage() {
     );
 
     return (
-        <div className="min-h-screen bg-background relative selection:bg-primary/20">
+        <div className="builder-root min-h-screen bg-background relative selection:bg-primary/20">
             {/* Background Blobs */}
             <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"></div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Sparkles } from "lucide-react";
+import AuroraBackground from "@/components/ui/AuroraBackground";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -39,20 +40,19 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl translate-y-[-50%] translate-x-[-50%] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/30 rounded-full blur-3xl translate-y-[50%] translate-x-[50%] pointer-events-none"></div>
+    <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[#070b18] px-5 py-28 relative">
+      <AuroraBackground />
 
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-sm bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-white/40 space-y-6"
+        className="glass-panel glow-border relative w-full max-w-md space-y-6 rounded-3xl p-8 md:p-10"
       >
         <div className="text-center space-y-2">
           <div className="inline-flex p-2 bg-primary/10 rounded-lg text-primary mb-2">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-serif font-medium text-foreground">Create Account</h1>
+          <p className="text-xs font-semibold uppercase tracking-[.24em] text-violet-300">Start creating</p>
+          <h1 className="text-3xl font-semibold text-white">Your work, elevated.</h1>
           <p className="text-muted-foreground text-sm">Join Resumix and start building</p>
         </div>
 
@@ -64,7 +64,7 @@ export default function SignupPage() {
             placeholder="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none transition-all placeholder:text-muted-foreground focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20"
             required
           />
 
@@ -73,7 +73,7 @@ export default function SignupPage() {
             placeholder="Email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none transition-all placeholder:text-muted-foreground focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20"
             required
           />
 
@@ -82,7 +82,7 @@ export default function SignupPage() {
             placeholder="Password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+            className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none transition-all placeholder:text-muted-foreground focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20"
             required
           />
         </div>
@@ -90,7 +90,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-3 rounded-full font-medium hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+          className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 py-3 font-semibold text-white transition-all hover:scale-[1.01] hover:shadow-lg hover:shadow-violet-500/25"
         >
           {loading ? "Creating..." : "Sign Up"}
         </button>
@@ -104,7 +104,7 @@ export default function SignupPage() {
         <button
           type="button"
           onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-          className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-foreground py-3 rounded-full hover:bg-slate-50 transition-colors font-medium"
+          className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-white transition-colors hover:bg-white/10 font-medium"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path

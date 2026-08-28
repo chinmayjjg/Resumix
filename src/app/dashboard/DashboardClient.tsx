@@ -11,11 +11,12 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
 
     return (
         <div className={theme}>
-            <div className="min-h-screen bg-background text-foreground p-8">
+            <div className="min-h-screen text-foreground transition-colors dark:bg-[#090d1a]">
                 <header className="flex justify-between items-center mb-10">
                     <div>
-                        <h1 className="text-3xl font-serif font-bold text-foreground">Dashboard</h1>
-                        <p className="text-muted-foreground mt-1">Welcome back, {session.user.name}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[.2em] text-violet-600 dark:text-violet-300">Workspace</p>
+                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Welcome back, {session.user.name?.split(' ')[0]}</h1>
+                        <p className="mt-1 text-muted-foreground">Here&apos;s your portfolio at a glance.</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link
@@ -31,7 +32,7 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                             <Sparkles className="w-4 h-4" />
                             Open Builder
                         </Link>
-                        <div className="bg-white/50 p-1 rounded-full border border-slate-200">
+                        <div className="rounded-full border border-slate-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
                             <ThemeToggle currentTheme={theme} userId={session.user.id} onToggle={setTheme} />
                         </div>
                     </div>
@@ -40,8 +41,8 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                 <section className="space-y-8">
                     {/* View My Portfolio Section */}
                     {portfolio && (
-                        <div className="relative overflow-hidden bg-white/60 backdrop-blur-md p-8 rounded-2xl border border-white/60 shadow-sm">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 -z-10"></div>
+                        <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-[#11182a] dark:shadow-2xl dark:shadow-black/20">
+                            <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-100 blur-3xl dark:bg-violet-600/25"></div>
 
                             <div className="flex items-center justify-between flex-wrap gap-6">
                                 <div>
@@ -67,14 +68,14 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                                             navigator.clipboard.writeText(url);
                                             alert('Portfolio link copied to clipboard!');
                                         }}
-                                        className="bg-white text-foreground px-6 py-3 rounded-xl hover:bg-slate-50 transition-colors font-medium border border-slate-200 shadow-sm flex items-center gap-2"
+                                    className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10"
                                     >
                                         <Copy className="w-4 h-4 text-muted-foreground" />
                                         Copy Link
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-6 p-4 bg-slate-50/50 rounded-xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-primary/20 transition-colors"
+                            <div className="mt-6 flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-primary/40 dark:border-white/10 dark:bg-black/20"
                                 onClick={() => {
                                     const url = `${window.location.origin}/portfolio/${session.user.id}`;
                                     navigator.clipboard.writeText(url);
@@ -83,7 +84,7 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                                 <p className="text-sm font-mono text-muted-foreground break-all">
                                     {typeof window !== 'undefined' ? `${window.location.origin}/portfolio/${session.user.id}` : `/portfolio/${session.user.id}`}
                                 </p>
-                                <Copy className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                                <Copy className="w-4 h-4 text-slate-400 transition-colors group-hover:text-primary" />
                             </div>
                         </div>
                     )}
@@ -102,7 +103,7 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                     )}
 
                     {portfolio && (
-                        <div className="p-8 border border-white/60 bg-white/40 backdrop-blur-sm rounded-2xl shadow-sm">
+                        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-[#11182a]">
                             <div className="flex justify-between items-start mb-6">
                                 <h2 className="text-xl font-serif font-semibold text-foreground">Portfolio Preview</h2>
                                 <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-secondary">
@@ -111,14 +112,14 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                             </div>
 
                             <div className="grid md:grid-cols-3 gap-8">
-                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#151e34]">
                                     <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">About</h3>
                                     <p className="text-foreground line-clamp-3 leading-relaxed text-sm">
                                         {portfolio.summary || portfolio.about || "No summary added yet."}
                                     </p>
                                 </div>
 
-                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#151e34]">
                                     <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">Skills</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {portfolio.skills?.length > 0 ? (
@@ -136,9 +137,9 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                                     </div>
                                 </div>
 
-                                <div className="p-5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#151e34]">
                                     <h3 className="font-medium text-muted-foreground mb-3 text-sm uppercase tracking-wide">Projects</h3>
-                                    <div className="flex items-center justify-center h-20 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                    <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-black/20">
                                         <p className="font-serif text-2xl text-primary">{portfolio.projects?.length || 0}</p>
                                         <p className="ml-2 text-sm text-muted-foreground">projects added</p>
                                     </div>
