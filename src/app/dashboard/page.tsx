@@ -15,6 +15,8 @@ export default async function DashboardPage() {
   await connectDB();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const portfolio = await Portfolio.findOne({ userId: session.user.id }).lean() as any;
+  // Mongoose values (including nested _id fields) cannot cross the Server-to-Client boundary.
+  const plainPortfolio = portfolio ? JSON.parse(JSON.stringify(portfolio)) : null;
 
-  return <DashboardClient portfolio={portfolio} session={session} />;
+  return <DashboardClient portfolio={plainPortfolio} session={session} />;
 }

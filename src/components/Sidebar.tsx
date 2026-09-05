@@ -14,11 +14,6 @@ const sidebarItems = [
         icon: LayoutDashboard,
     },
     {
-        title: "Profile",
-        href: "/dashboard/profile",
-        icon: User,
-    },
-    {
         title: "Upload Resume",
         href: "/dashboard/upload",
         icon: FileText,
@@ -35,7 +30,7 @@ const sidebarItems = [
     },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onOpenProfile }: { onOpenProfile: () => void }) {
     const pathname = usePathname();
 
     return (
@@ -48,6 +43,10 @@ export default function Sidebar() {
             </div>
 
             <nav className="flex-1 px-4 space-y-2">
+                <button onClick={onOpenProfile} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white">
+                    <User className="w-5 h-5" />
+                    Profile
+                </button>
                 {sidebarItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;

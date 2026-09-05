@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ui/ThemeToggle";
 import { Sparkles, ExternalLink, Copy } from 'lucide-react';
+import { useProfileModal } from '@/components/DashboardShell';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function DashboardClient({ portfolio, session }: { portfolio: any, session: any }) {
     const [theme, setTheme] = useState(portfolio?.theme || "light");
+    const openProfile = useProfileModal();
 
     return (
         <div className={theme}>
@@ -19,12 +21,9 @@ export default function DashboardClient({ portfolio, session }: { portfolio: any
                         <p className="mt-1 text-muted-foreground">Here&apos;s your portfolio at a glance.</p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <Link
-                            href="/dashboard/profile"
-                            className="text-muted-foreground hover:text-primary font-medium transition-colors"
-                        >
+                        <button onClick={openProfile} className="text-muted-foreground hover:text-primary font-medium transition-colors">
                             Profile
-                        </Link>
+                        </button>
                         <Link
                             href="/dashboard/builder"
                             className="bg-primary text-primary-foreground px-5 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-md hover:translate-y-[-1px] flex items-center gap-2"

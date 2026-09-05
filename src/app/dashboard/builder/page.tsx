@@ -8,6 +8,7 @@ import ThemePreviewGrid from '@/components/portfolio/ThemePreviewGrid';
 import { PortfolioDesign } from '@/lib/portfolioDesign';
 import { IPortfolio } from '@/models/Portfolio';
 import { Sparkles, Save, Upload, Eye, Palette, ArrowLeft, X } from 'lucide-react';
+import { useProfileModal } from '@/components/DashboardShell';
 
 interface Experience {
     company: string;
@@ -63,6 +64,7 @@ const initialData: PortfolioData = {
 
 export default function BuilderPage() {
     const router = useRouter();
+    const openProfile = useProfileModal();
     const [data, setData] = useState<PortfolioData>(initialData);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -321,7 +323,7 @@ export default function BuilderPage() {
 
                     <div className="ml-2 pl-2 border-l border-slate-200">
                         <button
-                            onClick={() => router.push('/dashboard/profile')}
+                            onClick={openProfile}
                             className="relative w-9 h-9 rounded-full bg-slate-100 overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all border border-slate-200"
                             title="Profile"
                         >
